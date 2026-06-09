@@ -2,6 +2,7 @@
 {
   imports = [
     ../../home/hunter.nix
+    ../../home/dev.nix
   ];
 
   programs.zsh.shellAliases = {
