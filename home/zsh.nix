@@ -8,8 +8,6 @@
     autocd = true;
     history.size = 10000;
     shellAliases = {
-      rebuild = "sudo nixos-rebuild switch --flake ~/nixcfg";
-      update  = "nix flake update --flake ~/nixcfg && sudo nixos-rebuild switch --flake ~/nixcfg";
       ".."  = "cd ..";
       "..." = "cd ../..";
       v = "nvim";

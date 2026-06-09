@@ -10,14 +10,28 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+  outputs = { nixpkgs, home-manager, ... }@inputs:
+    let
       system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./hosts/nixos
-        home-manager.nixosModules.home-manager
-      ];
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ inputs.llm-agents.overlays.default ];
+      };
+    in
+    {
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/nixos
+          home-manager.nixosModules.home-manager
+        ];
+      };
+
+      homeConfigurations."hunter-arch" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit inputs; };
+        modules = [ ./hosts/arch/home.nix ];
+      };
     };
-  };
 }
