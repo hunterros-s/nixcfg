@@ -71,7 +71,7 @@
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "bak"; # see gotcha below
-  home-manager.users.hunter = import ../../home/hunter.nix;
+  home-manager.users.hunter = import ./home.nix;
 
   system.stateVersion = "26.05"; # do not change
 }
