@@ -1,0 +1,21 @@
+# Nix build outputs
+result
+result-*
+
+# direnv
+.direnv/
+.envrc.local
+
+# local secrets / env files
+.env
+.env.*
+!.env.example
+
+# editor / OS noise
+*.swp
+*.swo
+*~
+.DS_Store
+
+# pi local runtime data (if created in repo)
+.pi/

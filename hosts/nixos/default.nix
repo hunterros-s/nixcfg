@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 {
   imports = [ ./hardware-configuration.nix ];
 
@@ -23,9 +23,20 @@
     ];
   };
 
+  # pi & other coding agents
+  nixpkgs.overlays = [ inputs.llm-agents.overlays.default ];
+
   # nix daemon
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.settings.auto-optimise-store = true;
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true;
+    # below added for pi & other coding agents
+    extra-substituters = [ "https://cache.numtide.com" ];
+    extra-trusted-public-keys = [
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+    ];
+  };
+
   nix.gc = {
     automatic = true;
     dates = "weekly";
@@ -33,11 +44,10 @@
   };
 
   programs.zsh.enable = true; # registers zsh as a login shell; HM writes the actual config
-  programs.direnv.enable = true;
   programs.nix-ld.enable = true;
 
   environment.systemPackages = with pkgs; [
-    vim wget curl htop tmux fastfetch
+    vim wget curl htop 
   ];
 
   services.openssh = {
