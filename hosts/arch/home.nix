@@ -9,6 +9,7 @@
   home.homeDirectory = "/home/hunter";
 
   targets.genericLinux.enable = true;
+  programs.home-manager.enable = true;
 
   home.sessionVariables = {
     ROCM_PATH = "/opt/rocm";
