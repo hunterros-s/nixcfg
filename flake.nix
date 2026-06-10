@@ -17,15 +17,23 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs:
+  outputs =
+    { nixpkgs, home-manager, ... }@inputs:
     let
-      mkPkgs = system:
+      systems = [
+        "x86_64-linux"
+        "aarch64-darwin"
+      ];
+
+      mkPkgs =
+        system:
         import nixpkgs {
           inherit system;
           overlays = [ inputs.llm-agents.overlays.default ];
         };
 
-      mkHome = system: module:
+      mkHome =
+        system: module:
         home-manager.lib.homeManagerConfiguration {
           pkgs = mkPkgs system;
           extraSpecialArgs = { inherit inputs; };
@@ -33,6 +41,8 @@
         };
     in
     {
+      formatter = nixpkgs.lib.genAttrs systems (system: (mkPkgs system).nixfmt-tree);
+
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
@@ -42,10 +52,8 @@
         ];
       };
 
-      homeConfigurations."hunter-arch" =
-        mkHome "x86_64-linux" ./hosts/arch/home.nix;
+      homeConfigurations."hunter-arch" = mkHome "x86_64-linux" ./hosts/arch/home.nix;
 
-      homeConfigurations."hunter-mac" =
-        mkHome "aarch64-darwin" ./hosts/mac/home.nix;
+      homeConfigurations."hunter-mac" = mkHome "aarch64-darwin" ./hosts/mac/home.nix;
     };
 }
