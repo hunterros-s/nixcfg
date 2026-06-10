@@ -1,10 +1,15 @@
 { pkgs, ... }:
 {
-  home.packages = with pkgs; [
-    ripgrep fd tree
-  ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-    fastfetch
-  ];
+  home.packages =
+    with pkgs;
+    [
+      ripgrep
+      fd
+      tree
+    ]
+    ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+      fastfetch
+    ];
 
   imports = [
     ./zsh.nix
@@ -17,7 +22,7 @@
     VISUAL = "nvim";
     CLICOLOR = "1";
   };
-  
+
   programs.tmux = {
     enable = true;
     mouse = true;
@@ -31,7 +36,7 @@
     enable = true;
     settings = {
       user = {
-        name  = "Hunter Ross";
+        name = "Hunter Ross";
         email = "hlross@umich.edu";
       };
       init.defaultBranch = "main";

@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   imports = [ ./hardware-configuration.nix ];
 
@@ -28,7 +34,10 @@
 
   # nix daemon
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     auto-optimise-store = true;
     # below added for pi & other coding agents
     extra-substituters = [ "https://cache.numtide.com" ];
@@ -47,7 +56,10 @@
   programs.nix-ld.enable = true;
 
   environment.systemPackages = with pkgs; [
-    vim wget curl htop 
+    vim
+    wget
+    curl
+    htop
   ];
 
   services.openssh = {

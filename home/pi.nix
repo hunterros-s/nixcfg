@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 let
-  piCorner = "${config.home.homeDirectory}/.pi/npm";   # writable extension home
+  piCorner = "${config.home.homeDirectory}/.pi/npm"; # writable extension home
 
   pi = pkgs.symlinkJoin {
     name = "pi";

@@ -8,7 +8,7 @@
     autocd = true;
     history.size = 10000;
     shellAliases = {
-      ".."  = "cd ..";
+      ".." = "cd ..";
       "..." = "cd ../..";
       v = "nvim";
       c = "clear";
