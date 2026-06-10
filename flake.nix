@@ -30,19 +30,17 @@
         "aarch64-darwin"
       ];
 
-      mkPkgs =
-        system:
-        import nixpkgs {
-          inherit system;
-        };
+      hmSpecialArgs = {
+        llmAgents = llm-agents;
+      };
+
+      mkPkgs = system: nixpkgs.legacyPackages.${system};
 
       mkHome =
         system: module:
         home-manager.lib.homeManagerConfiguration {
           pkgs = mkPkgs system;
-          extraSpecialArgs = {
-            llmAgents = llm-agents;
-          };
+          extraSpecialArgs = hmSpecialArgs;
           modules = [ module ];
         };
     in
@@ -55,9 +53,7 @@
           ./hosts/nixos
           home-manager.nixosModules.home-manager
           {
-            home-manager.extraSpecialArgs = {
-              llmAgents = llm-agents;
-            };
+            home-manager.extraSpecialArgs = hmSpecialArgs;
           }
         ];
       };
