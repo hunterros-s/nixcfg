@@ -7,6 +7,7 @@
 
   home.username = "hunter";
   home.homeDirectory = "/home/hunter";
+  home.stateVersion = "26.05"; # do not change
 
   targets.genericLinux.enable = true;
   programs.home-manager.enable = true;

@@ -1,7 +1,5 @@
 { pkgs, ... }:
 {
-  home.stateVersion = "26.05"; # matches configuration.nix; do not change.
-
   home.packages = with pkgs; [
     ripgrep fd tree
   ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [

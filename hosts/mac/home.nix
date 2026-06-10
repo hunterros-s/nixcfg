@@ -6,6 +6,7 @@
 
   home.username = "hunterross";
   home.homeDirectory = "/Users/hunterross";
+  home.stateVersion = "26.05"; # do not change
 
   programs.home-manager.enable = true;
 
