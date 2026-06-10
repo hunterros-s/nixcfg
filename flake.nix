@@ -30,19 +30,19 @@
         "aarch64-darwin"
       ];
 
-      llmAgentsOverlay = llm-agents.overlays.default;
-
       mkPkgs =
         system:
         import nixpkgs {
           inherit system;
-          overlays = [ llmAgentsOverlay ];
         };
 
       mkHome =
         system: module:
         home-manager.lib.homeManagerConfiguration {
           pkgs = mkPkgs system;
+          extraSpecialArgs = {
+            llmAgents = llm-agents;
+          };
           modules = [ module ];
         };
     in
@@ -52,9 +52,13 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          { nixpkgs.overlays = [ llmAgentsOverlay ]; }
           ./hosts/nixos
           home-manager.nixosModules.home-manager
+          {
+            home-manager.extraSpecialArgs = {
+              llmAgents = llm-agents;
+            };
+          }
         ];
       };
 
