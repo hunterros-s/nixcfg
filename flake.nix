@@ -1,5 +1,5 @@
 {
-  description = "hunter's nixos";
+  description = "hunter's nix config";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
@@ -12,15 +12,22 @@
 
   outputs = { nixpkgs, home-manager, ... }@inputs:
     let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [ inputs.llm-agents.overlays.default ];
-      };
+      mkPkgs = system:
+        import nixpkgs {
+          inherit system;
+          overlays = [ inputs.llm-agents.overlays.default ];
+        };
+
+      mkHome = system: module:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = mkPkgs system;
+          extraSpecialArgs = { inherit inputs; };
+          modules = [ module ];
+        };
     in
     {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
+        system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
           ./hosts/nixos
@@ -28,10 +35,10 @@
         ];
       };
 
-      homeConfigurations."hunter-arch" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = { inherit inputs; };
-        modules = [ ./hosts/arch/home.nix ];
-      };
+      homeConfigurations."hunter-arch" =
+        mkHome "x86_64-linux" ./hosts/arch/home.nix;
+
+      homeConfigurations."hunter-mac" =
+        mkHome "aarch64-darwin" ./hosts/mac/home.nix;
     };
 }
