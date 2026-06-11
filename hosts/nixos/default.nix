@@ -1,6 +1,12 @@
 { pkgs, ... }:
+let
+  sshKeys = import ../../shared/ssh-keys.nix;
+in
 {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    ../../profiles/pi/nixos.nix
+  ];
 
   # boot
   boot.loader.systemd-boot.enable = true;
@@ -18,9 +24,7 @@
     description = "Hunter";
     extraGroups = [ "wheel" ];
     shell = pkgs.zsh;
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ+Px2wj1frjRSV2QDwpnlobsGFZ9km567UrxhnrXP1Y hunter@nixos"
-    ];
+    openssh.authorizedKeys.keys = sshKeys.hunter;
   };
 
   # nix daemon
@@ -30,11 +34,6 @@
       "flakes"
     ];
     auto-optimise-store = true;
-    # below added for pi & other coding agents
-    extra-substituters = [ "https://cache.numtide.com" ];
-    extra-trusted-public-keys = [
-      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-    ];
   };
 
   nix.gc = {

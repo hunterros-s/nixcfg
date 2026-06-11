@@ -1,7 +1,7 @@
 {
   pkgs,
   config,
-  llmAgents,
+  inputs,
   ...
 }:
 let
@@ -10,7 +10,7 @@ let
 
   pi = pkgs.symlinkJoin {
     name = "pi";
-    paths = [ llmAgents.packages.${system}.pi ];
+    paths = [ inputs.llm-agents.packages.${system}.pi ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/pi \

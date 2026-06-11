@@ -14,7 +14,6 @@
   imports = [
     ./zsh.nix
     ./neovim.nix
-    ./pi.nix
   ];
 
   home.sessionVariables = {

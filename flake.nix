@@ -1,13 +1,6 @@
 {
   description = "hunter's nix config";
 
-  nixConfig = {
-    extra-substituters = [ "https://cache.numtide.com" ];
-    extra-trusted-public-keys = [
-      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-    ];
-  };
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     home-manager = {
@@ -18,10 +11,9 @@
   };
 
   outputs =
-    {
+    inputs@{
       nixpkgs,
       home-manager,
-      llm-agents,
       ...
     }:
     let
@@ -31,7 +23,7 @@
       ];
 
       hmSpecialArgs = {
-        llmAgents = llm-agents;
+        inherit inputs;
       };
 
       mkPkgs = system: nixpkgs.legacyPackages.${system};
@@ -49,6 +41,9 @@
 
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+        };
         modules = [
           ./hosts/nixos
           home-manager.nixosModules.home-manager

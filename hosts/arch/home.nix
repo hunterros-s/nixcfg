@@ -3,6 +3,7 @@
   imports = [
     ../../home/hunter.nix
     ../../home/dev.nix
+    ../../profiles/pi/home.nix
   ];
 
   home.username = "hunter";
