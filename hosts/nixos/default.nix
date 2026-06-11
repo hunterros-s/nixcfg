@@ -34,7 +34,10 @@ in
       "flakes"
     ];
     auto-optimise-store = true;
+    flake-registry = "";
   };
+
+  nix.channel.enable = false;
 
   nix.gc = {
     automatic = true;
