@@ -26,6 +26,6 @@
   programs.zsh.shellAliases = {
     hms = "home-manager switch --flake ~/nixcfg#hunter-arch";
     hmb = "home-manager build --flake ~/nixcfg#hunter-arch";
-    nfu = "nix flake update ~/nixcfg";
+    nfu = "nix flake update --flake ~/nixcfg";
   };
 }

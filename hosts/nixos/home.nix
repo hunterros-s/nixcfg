@@ -10,6 +10,6 @@
   programs.zsh.shellAliases = {
     rebuild = "sudo nixos-rebuild switch --flake ~/nixcfg#nixos";
     build = "nixos-rebuild build --flake ~/nixcfg#nixos";
-    update = "nix flake update ~/nixcfg && sudo nixos-rebuild switch --flake ~/nixcfg#nixos";
+    update = "nix flake update --flake ~/nixcfg && sudo nixos-rebuild switch --flake ~/nixcfg#nixos";
   };
 }
