@@ -1,42 +1,11 @@
-{ pkgs, ... }:
+{ host, ... }:
 {
-  home.packages =
-    with pkgs;
-    [
-      ripgrep
-      fd
-      tree
-    ]
-    ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-      fastfetch
-    ];
-
-  imports = [
-    ./zsh.nix
-    ./neovim.nix
-  ];
-
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-    CLICOLOR = "1";
-  };
-
-  programs.tmux = {
-    enable = true;
-    mouse = true;
-    keyMode = "vi";
-    historyLimit = 50000;
-    escapeTime = 10;
-    terminal = "tmux-256color";
-  };
-
   programs.git = {
     enable = true;
     settings = {
       user = {
-        name = "Hunter Ross";
-        email = "hlross@umich.edu";
+        name = host.user.fullName;
+        email = host.user.email;
       };
       init.defaultBranch = "main";
       pull.rebase = false;
@@ -67,12 +36,5 @@
       "Desktop.ini"
       "Thumbs.db"
     ];
-  };
-
-  programs.fzf.enable = true;
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
   };
 }

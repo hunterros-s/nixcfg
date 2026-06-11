@@ -17,44 +17,39 @@
       ...
     }:
     let
-      systems = [
-        "x86_64-linux"
-        "aarch64-darwin"
-      ];
+      lib = nixpkgs.lib;
 
-      hmSpecialArgs = {
-        inherit inputs;
+      hosts = import ./hosts;
+      systems = lib.unique (map (host: host.system) (lib.attrValues hosts));
+
+      pkgsFor = lib.genAttrs systems (
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        }
+      );
+
+      mkPkgs = system: pkgsFor.${system};
+
+      mkHome = import ./lib/mkHome.nix {
+        inherit inputs home-manager mkPkgs;
       };
 
-      mkPkgs = system: nixpkgs.legacyPackages.${system};
+      mkNixos = import ./lib/mkNixos.nix {
+        inherit inputs nixpkgs home-manager;
+      };
 
-      mkHome =
-        system: module:
-        home-manager.lib.homeManagerConfiguration {
-          pkgs = mkPkgs system;
-          extraSpecialArgs = hmSpecialArgs;
-          modules = [ module ];
-        };
+      homeHosts = lib.filterAttrs (_: host: host.kind == "home") hosts;
+      nixosHosts = lib.filterAttrs (_: host: host.kind == "nixos") hosts;
     in
     {
-      formatter = nixpkgs.lib.genAttrs systems (system: (mkPkgs system).nixfmt-tree);
+      formatter = lib.genAttrs systems (system: pkgsFor.${system}.nixfmt-tree);
 
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {
-          inherit inputs;
-        };
-        modules = [
-          ./hosts/nixos
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.extraSpecialArgs = hmSpecialArgs;
-          }
-        ];
-      };
+      homeConfigurations = lib.mapAttrs' (_: host: lib.nameValuePair host.name (mkHome host)) homeHosts;
 
-      homeConfigurations."hunter-arch" = mkHome "x86_64-linux" ./hosts/arch/home.nix;
-
-      homeConfigurations."hunter-mac" = mkHome "aarch64-darwin" ./hosts/mac/home.nix;
+      nixosConfigurations = lib.mapAttrs' (
+        _: host: lib.nameValuePair host.name (mkNixos host)
+      ) nixosHosts;
     };
 }

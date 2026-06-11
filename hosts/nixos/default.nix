@@ -1,27 +1,22 @@
-{ pkgs, ... }:
+{ pkgs, host, ... }:
 let
-  sshKeys = import ../../shared/ssh-keys.nix;
+  sshKeys = import ../../data/ssh-keys.nix;
 in
 {
-  imports = [
-    ./hardware-configuration.nix
-    ../../profiles/pi/nixos.nix
-  ];
-
   # boot
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  networking.hostName = "nixos";
+  networking.hostName = host.name;
   networking.networkmanager.enable = true;
 
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  users.users.hunter = {
+  users.users.${host.user.name} = {
     isNormalUser = true;
-    description = "Hunter";
+    description = host.user.fullName;
     extraGroups = [ "wheel" ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = sshKeys.hunter;
@@ -72,11 +67,5 @@ in
     HandleLidSwitchDocked = "ignore";
   };
 
-  # home-manager
-  home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
-  home-manager.backupFileExtension = "bak"; # see gotcha below
-  home-manager.users.hunter = import ./home.nix;
-
-  system.stateVersion = "26.05"; # do not change
+  system.stateVersion = host.stateVersion; # do not change
 }

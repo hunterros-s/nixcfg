@@ -1,14 +1,8 @@
-{ ... }:
+{ host, ... }:
 {
-  imports = [
-    ../../home/hunter.nix
-    ../../home/dev.nix
-    ../../profiles/pi/home.nix
-  ];
-
-  home.username = "hunter";
-  home.homeDirectory = "/home/hunter";
-  home.stateVersion = "26.05"; # do not change
+  home.username = host.user.name;
+  home.homeDirectory = host.user.home;
+  home.stateVersion = host.stateVersion; # do not change
 
   targets.genericLinux.enable = true;
   programs.home-manager.enable = true;
@@ -23,9 +17,4 @@
     "$HOME/.npm-global/bin"
   ];
 
-  programs.zsh.shellAliases = {
-    hms = "home-manager switch --flake ~/nixcfg#hunter-arch";
-    hmb = "home-manager build --flake ~/nixcfg#hunter-arch";
-    nfu = "nix flake update --flake ~/nixcfg";
-  };
 }
