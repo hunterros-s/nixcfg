@@ -11,6 +11,8 @@ in
   networking.hostName = host.name;
   networking.networkmanager.enable = true;
 
+  networking.interfaces.enp1s0f1.wakeOnLan.enable = true;
+
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
