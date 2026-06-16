@@ -46,9 +46,9 @@ in
     ];
   };
 
-  nixos = {
+  aspire = {
     kind = "nixos";
-    name = "nixos";
+    name = "aspire";
     system = "x86_64-linux";
     stateVersion = "26.05";
 
@@ -60,13 +60,13 @@ in
     };
 
     nixosModules = [
-      ./nixos/default.nix
-      ./nixos/hardware-configuration.nix
+      ./aspire/default.nix
+      ./aspire/hardware-configuration.nix
       ../features/pi/nixos.nix
     ];
 
     homeModules = commonHome ++ [
-      ./nixos/home.nix
+      ./aspire/home.nix
       ../features/dev/home.nix
       ../features/pi/home.nix
     ];

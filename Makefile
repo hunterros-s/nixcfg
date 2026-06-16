@@ -8,8 +8,10 @@ IS_NIXOS := $(shell test -e /etc/NIXOS && echo 1 || echo 0)
 ifeq ($(origin TARGET),undefined)
   ifeq ($(HOSTNAME),Hunters-Air)
     TARGET := hunter-mac
+  else ifeq ($(HOSTNAME),aspire)
+    TARGET := aspire
   else ifeq ($(HOSTNAME),nixos)
-    TARGET := nixos
+    TARGET := aspire
   else ifeq ($(HOSTNAME),arch)
     TARGET := hunter-arch
   else
@@ -25,12 +27,12 @@ else ifeq ($(TARGET),hunter-arch)
 BUILD_CMD := home-manager build --flake .\#$(TARGET)
 TEST_CMD := $(BUILD_CMD)
 SWITCH_CMD := home-manager switch --flake .\#$(TARGET)
-else ifeq ($(TARGET),nixos)
+else ifeq ($(TARGET),aspire)
 BUILD_CMD := nixos-rebuild build --flake .\#$(TARGET)
 TEST_CMD := sudo nixos-rebuild test --flake .\#$(TARGET)
 SWITCH_CMD := sudo nixos-rebuild switch --flake .\#$(TARGET)
 else
-$(error Unknown TARGET '$(TARGET)'. Expected hunter-mac, hunter-arch, or nixos)
+$(error Unknown TARGET '$(TARGET)'. Expected hunter-mac, hunter-arch, or aspire)
 endif
 
 .PHONY: target build test switch update upgrade fmt check clean
