@@ -5,6 +5,10 @@ let
     ../features/zsh/home.nix
     ../features/neovim/home.nix
   ];
+
+  graphicalHome = [
+    ../features/alacritty/home.nix
+  ];
 in
 {
   arch = {
@@ -62,11 +66,13 @@ in
     nixosModules = [
       ./aspire/default.nix
       ./aspire/hardware-configuration.nix
+      ../features/desktop/niri/nixos.nix
       ../features/pi/nixos.nix
     ];
 
-    homeModules = commonHome ++ [
+    homeModules = commonHome ++ graphicalHome ++ [
       ./aspire/home.nix
+      ../features/desktop/niri/home.nix
       ../features/dev/home.nix
       ../features/pi/home.nix
     ];
