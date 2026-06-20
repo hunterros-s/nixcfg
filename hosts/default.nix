@@ -26,6 +26,7 @@ in
 
     homeModules = commonHome ++ [
       ./arch/home.nix
+      ../features/desktop/waybar/home.nix
       ../features/dev/home.nix
       ../features/pi/home.nix
     ];
@@ -70,11 +71,14 @@ in
       ../features/pi/nixos.nix
     ];
 
-    homeModules = commonHome ++ graphicalHome ++ [
-      ./aspire/home.nix
-      ../features/desktop/niri/home.nix
-      ../features/dev/home.nix
-      ../features/pi/home.nix
-    ];
+    homeModules =
+      commonHome
+      ++ graphicalHome
+      ++ [
+        ./aspire/home.nix
+        ../features/desktop/niri/home.nix
+        ../features/dev/home.nix
+        ../features/pi/home.nix
+      ];
   };
 }

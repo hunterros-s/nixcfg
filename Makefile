@@ -2,7 +2,7 @@
 # Override TARGET when needed, e.g. `make switch TARGET=hunter-arch`.
 
 UNAME := $(shell uname -s)
-HOSTNAME := $(shell hostname -s 2>/dev/null || hostname)
+HOSTNAME := $(shell if [ -n "$$HOSTNAME" ]; then printf '%s\n' "$$HOSTNAME" | cut -d. -f1; elif command -v hostname >/dev/null 2>&1; then hostname -s 2>/dev/null || hostname; elif [ -r /proc/sys/kernel/hostname ]; then cut -d. -f1 /proc/sys/kernel/hostname; else uname -n | cut -d. -f1; fi)
 IS_NIXOS := $(shell test -e /etc/NIXOS && echo 1 || echo 0)
 
 ifeq ($(origin TARGET),undefined)
@@ -22,11 +22,11 @@ endif
 ifeq ($(TARGET),hunter-mac)
 BUILD_CMD := home-manager build --flake .\#$(TARGET)
 TEST_CMD := $(BUILD_CMD)
-SWITCH_CMD := home-manager switch --flake .\#$(TARGET)
+SWITCH_CMD := home-manager switch -b backup --flake .\#$(TARGET)
 else ifeq ($(TARGET),hunter-arch)
 BUILD_CMD := home-manager build --flake .\#$(TARGET)
 TEST_CMD := $(BUILD_CMD)
-SWITCH_CMD := home-manager switch --flake .\#$(TARGET)
+SWITCH_CMD := home-manager switch -b backup --flake .\#$(TARGET)
 else ifeq ($(TARGET),aspire)
 BUILD_CMD := nixos-rebuild build --flake .\#$(TARGET)
 TEST_CMD := sudo nixos-rebuild test --flake .\#$(TARGET)
