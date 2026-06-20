@@ -26,6 +26,7 @@ in
 
     homeModules = commonHome ++ [
       ./arch/home.nix
+      ../features/alacritty/home.nix
       ../features/desktop/waybar/home.nix
       ../features/dev/home.nix
       ../features/pi/home.nix
