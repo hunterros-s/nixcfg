@@ -1,11 +1,6 @@
 {
   home =
-    {
-      config,
-      lib,
-      pkgs,
-      ...
-    }:
+    { pkgs, ... }:
 
     let
       settings = {
@@ -82,16 +77,13 @@
       toml = pkgs.formats.toml { };
     in
     {
-      fonts.fontconfig.enable = lib.mkIf pkgs.stdenv.isLinux true;
-
-      home.packages =
-        lib.optionals pkgs.stdenv.isLinux [
-          pkgs.nerd-fonts.jetbrains-mono
-        ]
-        ++ lib.optionals (!config.targets.genericLinux.enable && pkgs.stdenv.isLinux) [
-          pkgs.alacritty
-        ];
-
       xdg.configFile."alacritty/alacritty.toml".source = toml.generate "alacritty.toml" settings;
+    };
+
+  nixos =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = [ pkgs.alacritty ];
+      fonts.packages = [ pkgs.nerd-fonts.jetbrains-mono ];
     };
 }

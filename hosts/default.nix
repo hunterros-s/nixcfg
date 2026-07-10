@@ -25,7 +25,6 @@ in
     };
 
     waybar = {
-      terminal = "/usr/bin/alacritty";
       cpuTemp = "/sys/class/hwmon/hwmon2/temp1_input";
       gpu = {
         busy = "/sys/class/drm/card1/device/gpu_busy_percent";

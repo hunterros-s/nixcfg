@@ -1,7 +1,6 @@
 {
   home =
     {
-      config,
       lib,
       pkgs,
       host,
@@ -9,15 +8,12 @@
     }:
 
     let
-      installWaybar = !config.targets.genericLinux.enable;
       json = pkgs.formats.json { };
       waybar = host.waybar or { };
       gpu = waybar.gpu or { };
 
-      terminalExe = waybar.terminal or (lib.getExe pkgs.alacritty);
-      btopExe = lib.getExe pkgs.btop;
-      pavucontrolExe = lib.getExe pkgs.pavucontrol;
-      overskrideExe = lib.getExe pkgs.overskride;
+      terminal = waybar.terminal or "alacritty";
+      runInTerminal = command: "${terminal} -e ${command}";
 
       hasCpuTemp = waybar ? cpuTemp;
       hasGpuBusy = gpu ? busy;
@@ -66,12 +62,12 @@
           tooltip = true;
           tooltip-format = "SSID: {essid}\nStrength: {signalStrength}%\nIP: {ipaddr}";
           tooltip-format-disconnected = "Disconnected";
-          on-click = "${terminalExe} -e ${pkgs.networkmanager}/bin/nmtui";
+          on-click = runInTerminal "nmtui";
         };
 
         bluetooth = {
           format = " ({num_connections} connected)";
-          on-click = overskrideExe;
+          on-click = "overskride";
           tooltip-format = "{controller_alias}\t{controller_address}\n\n{num_connections} connected";
           tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}";
           tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
@@ -92,12 +88,12 @@
           };
           tooltip = true;
           tooltip-format = "Volume: {volume}%\nMicrophone: {format_source}";
-          on-click = pavucontrolExe;
+          on-click = "pavucontrol";
         };
 
         memory = {
           format = "RAM {used:0.1f}GB";
-          on-click = "${terminalExe} -e ${btopExe}";
+          on-click = runInTerminal "btop";
         };
 
         "group/cpu" = {
@@ -107,7 +103,7 @@
 
         cpu = {
           format = "CPU {usage}%";
-          on-click = "${terminalExe} -e ${btopExe}";
+          on-click = runInTerminal "btop";
         };
       }
       // lib.optionalAttrs hasCpuTemp {
@@ -115,7 +111,7 @@
           hwmon-path = waybar.cpuTemp;
           critical-threshold = 80;
           format = " {temperatureC}°C";
-          on-click = "${terminalExe} -e ${btopExe}";
+          on-click = runInTerminal "btop";
         };
       }
       // lib.optionalAttrs hasGpu {
@@ -130,7 +126,7 @@
           exec = "cat ${gpu.busy}";
           format = "GPU {}%";
           interval = 1;
-          on-click = "${terminalExe} -e ${btopExe}";
+          on-click = runInTerminal "btop";
         };
       }
       // lib.optionalAttrs hasGpuTemp {
@@ -138,7 +134,7 @@
           hwmon-path = gpu.temp;
           critical-threshold = 80;
           format = " {temperatureC}°C";
-          on-click = "${terminalExe} -e ${btopExe}";
+          on-click = runInTerminal "btop";
         };
       };
 
@@ -175,24 +171,10 @@
       '';
 
       reloadWaybar = ''
-        ${pkgs.procps}/bin/pkill -u $USER -USR2 waybar || true
+        pkill -u $USER -USR2 waybar || true
       '';
     in
     {
-      fonts.fontconfig.enable = true;
-
-      home.packages =
-        (with pkgs; [
-          btop
-          font-awesome
-          nerd-fonts.jetbrains-mono
-          nerd-fonts.symbols-only
-          networkmanager
-          overskride
-          pavucontrol
-        ])
-        ++ lib.optionals installWaybar [ pkgs.waybar ];
-
       xdg.configFile = {
         "waybar/config" = {
           source = json.generate "waybar-config.json" [ settings ];
@@ -204,5 +186,22 @@
           onChange = reloadWaybar;
         };
       };
+    };
+
+  nixos =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = with pkgs; [
+        waybar
+        btop
+        overskride
+        pavucontrol
+      ];
+
+      fonts.packages = with pkgs; [
+        font-awesome
+        nerd-fonts.jetbrains-mono
+        nerd-fonts.symbols-only
+      ];
     };
 }
