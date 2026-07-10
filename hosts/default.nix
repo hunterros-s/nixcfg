@@ -1,19 +1,27 @@
 let
+  sshKeys = import ../data/ssh-keys.nix;
+
   commonHome = [
-    ../features/core/home.nix
-    ../features/git/home.nix
-    ../features/zsh/home.nix
-    ../features/neovim/home.nix
+    ../modules/core/home.nix
+    ../modules/git/home.nix
+    ../modules/zsh/home.nix
+    ../modules/neovim/home.nix
   ];
 
   graphicalHome = [
-    ../features/alacritty/home.nix
+    ../modules/alacritty/home.nix
+  ];
+
+  commonNixos = [
+    ../modules/nixos/base.nix
+    ../modules/nixos/user.nix
+    ../modules/nixos/ssh.nix
   ];
 in
 {
-  arch = {
+  hunter-arch = {
     kind = "home";
-    name = "hunter-arch";
+    hostname = "arch";
     system = "x86_64-linux";
     stateVersion = "26.05";
 
@@ -24,18 +32,30 @@ in
       home = "/home/hunter";
     };
 
+    desktop = {
+      terminal = "/usr/bin/alacritty";
+
+      waybar = {
+        cpuTemp = "/sys/class/hwmon/hwmon2/temp1_input";
+        gpu = {
+          busy = "/sys/class/drm/card1/device/gpu_busy_percent";
+          temp = "/sys/class/hwmon/hwmon1/temp1_input";
+        };
+      };
+    };
+
     homeModules = commonHome ++ [
       ./arch/home.nix
-      ../features/alacritty/home.nix
-      ../features/desktop/waybar/home.nix
-      ../features/dev/home.nix
-      ../features/pi/home.nix
+      ../modules/alacritty/home.nix
+      ../modules/desktop/waybar/home.nix
+      ../modules/dev/home.nix
+      ../modules/pi/home.nix
     ];
   };
 
-  mac = {
+  hunter-mac = {
     kind = "home";
-    name = "hunter-mac";
+    hostname = "Hunters-Air";
     system = "aarch64-darwin";
     stateVersion = "26.05";
 
@@ -47,14 +67,13 @@ in
     };
 
     homeModules = commonHome ++ [
-      ./mac/home.nix
-      ../features/pi/home.nix
+      ../modules/pi/home.nix
     ];
   };
 
   aspire = {
     kind = "nixos";
-    name = "aspire";
+    hostname = "aspire";
     system = "x86_64-linux";
     stateVersion = "26.05";
 
@@ -63,23 +82,24 @@ in
       fullName = "Hunter Ross";
       email = "hlross@umich.edu";
       home = "/home/hunter";
+      sshKeys = sshKeys.hunter;
     };
 
-    nixosModules = [
+    nixosModules = commonNixos ++ [
       ./aspire/default.nix
       ./aspire/hardware-configuration.nix
-      ../features/desktop/niri/nixos.nix
-      ../features/pi/nixos.nix
+      ../modules/desktop/niri/nixos.nix
+      ../modules/nixos/tailscale.nix
+      ../modules/pi/nixos.nix
     ];
 
     homeModules =
       commonHome
       ++ graphicalHome
       ++ [
-        ./aspire/home.nix
-        ../features/desktop/niri/home.nix
-        ../features/dev/home.nix
-        ../features/pi/home.nix
+        ../modules/desktop/niri/home.nix
+        ../modules/dev/home.nix
+        ../modules/pi/home.nix
       ];
   };
 }

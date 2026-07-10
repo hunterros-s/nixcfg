@@ -1,12 +1,24 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  host,
+  ...
+}:
 
 let
-  # On Arch/non-NixOS, use the system terminal so it uses the system GPU stack.
-  # Nix-built Alacritty can fail without non-nixos-gpu setup.
-  alacrittyExe = "/usr/bin/alacritty";
+  desktop = host.desktop or { };
+  waybar = desktop.waybar or { };
+  gpu = waybar.gpu or { };
+
+  terminalExe = desktop.terminal or (lib.getExe pkgs.alacritty);
   btopExe = lib.getExe pkgs.btop;
   pavucontrolExe = lib.getExe pkgs.pavucontrol;
   overskrideExe = lib.getExe pkgs.overskride;
+
+  hasCpuTemp = waybar ? cpuTemp;
+  hasGpuBusy = gpu ? busy;
+  hasGpuTemp = gpu ? temp;
+  hasGpu = hasGpuBusy || hasGpuTemp;
 in
 {
   fonts.fontconfig.enable = true;
@@ -38,9 +50,9 @@ in
         "network"
         "bluetooth"
         "group/cpu"
-        "group/gpu"
-        "memory"
-      ];
+      ]
+      ++ lib.optionals hasGpu [ "group/gpu" ]
+      ++ [ "memory" ];
 
       clock = {
         format = "{:%a %b %e %I:%M %p}";
@@ -67,7 +79,7 @@ in
         tooltip = true;
         tooltip-format = "SSID: {essid}\nStrength: {signalStrength}%\nIP: {ipaddr}";
         tooltip-format-disconnected = "Disconnected";
-        on-click = "${alacrittyExe} -e ${pkgs.networkmanager}/bin/nmtui";
+        on-click = "${terminalExe} -e ${pkgs.networkmanager}/bin/nmtui";
       };
 
       bluetooth = {
@@ -98,49 +110,44 @@ in
 
       memory = {
         format = "RAM {used:0.1f}GB";
-        on-click = "${alacrittyExe} -e ${btopExe}";
+        on-click = "${terminalExe} -e ${btopExe}";
       };
 
       "group/cpu" = {
         orientation = "horizontal";
-        modules = [
-          "cpu"
-          "temperature#cpu"
-        ];
+        modules = [ "cpu" ] ++ lib.optionals hasCpuTemp [ "temperature#cpu" ];
       };
 
       cpu = {
         format = "CPU {usage}%";
-        on-click = "${alacrittyExe} -e ${btopExe}";
+        on-click = "${terminalExe} -e ${btopExe}";
       };
 
-      "temperature#cpu" = {
-        hwmon-path = "/sys/class/hwmon/hwmon2/temp1_input";
+      "temperature#cpu" = lib.mkIf hasCpuTemp {
+        hwmon-path = waybar.cpuTemp;
         critical-threshold = 80;
         format = " {temperatureC}°C";
-        on-click = "${alacrittyExe} -e ${btopExe}";
+        on-click = "${terminalExe} -e ${btopExe}";
       };
 
-      "group/gpu" = {
+      "group/gpu" = lib.mkIf hasGpu {
         orientation = "horizontal";
-        modules = [
-          "custom/gpu-util"
-          "temperature#gpu"
-        ];
+        modules =
+          lib.optionals hasGpuBusy [ "custom/gpu-util" ] ++ lib.optionals hasGpuTemp [ "temperature#gpu" ];
       };
 
-      "custom/gpu-util" = {
-        exec = "cat /sys/class/drm/card1/device/gpu_busy_percent";
+      "custom/gpu-util" = lib.mkIf hasGpuBusy {
+        exec = "cat ${gpu.busy}";
         format = "GPU {}%";
         interval = 1;
-        on-click = "${alacrittyExe} -e ${btopExe}";
+        on-click = "${terminalExe} -e ${btopExe}";
       };
 
-      "temperature#gpu" = {
-        hwmon-path = "/sys/class/hwmon/hwmon1/temp1_input";
+      "temperature#gpu" = lib.mkIf hasGpuTemp {
+        hwmon-path = gpu.temp;
         critical-threshold = 80;
         format = " {temperatureC}°C";
-        on-click = "${alacrittyExe} -e ${btopExe}";
+        on-click = "${terminalExe} -e ${btopExe}";
       };
     };
 

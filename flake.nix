@@ -19,7 +19,7 @@
     let
       lib = nixpkgs.lib;
 
-      hosts = import ./hosts;
+      hosts = lib.mapAttrs (name: host: host // { inherit name; }) (import ./hosts);
       systems = lib.unique (map (host: host.system) (lib.attrValues hosts));
 
       pkgsFor = lib.genAttrs systems (
@@ -46,10 +46,8 @@
     {
       formatter = lib.genAttrs systems (system: pkgsFor.${system}.nixfmt-tree);
 
-      homeConfigurations = lib.mapAttrs' (_: host: lib.nameValuePair host.name (mkHome host)) homeHosts;
+      homeConfigurations = lib.mapAttrs (_: host: mkHome host) homeHosts;
 
-      nixosConfigurations = lib.mapAttrs' (
-        _: host: lib.nameValuePair host.name (mkNixos host)
-      ) nixosHosts;
+      nixosConfigurations = lib.mapAttrs (_: host: mkNixos host) nixosHosts;
     };
 }

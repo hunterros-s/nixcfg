@@ -30,7 +30,7 @@ nixpkgs.lib.nixosSystem {
           inherit inputs host;
         };
 
-        users.${host.user.name}.imports = host.homeModules;
+        users.${host.user.name}.imports = [ ./homeBase.nix ] ++ host.homeModules;
       };
     }
   ];

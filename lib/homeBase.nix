@@ -5,5 +5,4 @@
   home.stateVersion = host.stateVersion; # do not change
 
   programs.home-manager.enable = true;
-
 }
