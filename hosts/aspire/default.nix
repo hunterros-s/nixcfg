@@ -1,16 +1,23 @@
-{ pkgs, ... }:
 {
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  nixos =
+    { pkgs, ... }:
+    {
+      imports = [
+        ./hardware-configuration.nix
+      ];
 
-  networking.networkmanager.enable = true;
-  networking.interfaces.enp1s0f1.wakeOnLan.enable = true;
+      boot.loader.systemd-boot.enable = true;
+      boot.loader.efi.canTouchEfiVariables = true;
+      boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # This machine is usually docked; do not sleep when the lid closes.
-  services.logind.settings.Login = {
-    HandleLidSwitch = "ignore";
-    HandleLidSwitchExternalPower = "ignore";
-    HandleLidSwitchDocked = "ignore";
-  };
+      networking.networkmanager.enable = true;
+      networking.interfaces.enp1s0f1.wakeOnLan.enable = true;
+
+      # This machine is usually docked; do not sleep when the lid closes.
+      services.logind.settings.Login = {
+        HandleLidSwitch = "ignore";
+        HandleLidSwitchExternalPower = "ignore";
+        HandleLidSwitchDocked = "ignore";
+      };
+    };
 }

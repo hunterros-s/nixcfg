@@ -1,21 +1,15 @@
 let
-  sshKeys = import ../data/ssh-keys.nix;
+  hunter = import ../users/hunter.nix;
 
-  commonHome = [
-    ../modules/core/home.nix
-    ../modules/git/home.nix
-    ../modules/zsh/home.nix
-    ../modules/neovim/home.nix
-  ];
-
-  graphicalHome = [
-    ../modules/alacritty/home.nix
-  ];
-
-  commonNixos = [
-    ../modules/nixos/base.nix
-    ../modules/nixos/user.nix
-    ../modules/nixos/ssh.nix
+  common = [
+    ../modules/cli.nix
+    ../modules/tmux.nix
+    ../modules/fzf.nix
+    ../modules/direnv.nix
+    ../modules/git.nix
+    ../modules/zsh.nix
+    ../modules/neovim.nix
+    ../modules/pi.nix
   ];
 in
 {
@@ -25,50 +19,41 @@ in
     system = "x86_64-linux";
     stateVersion = "26.05";
 
-    user = {
+    user = hunter // {
       name = "hunter";
-      fullName = "Hunter Ross";
-      email = "hlross@umich.edu";
       home = "/home/hunter";
     };
 
-    desktop = {
+    waybar = {
       terminal = "/usr/bin/alacritty";
-
-      waybar = {
-        cpuTemp = "/sys/class/hwmon/hwmon2/temp1_input";
-        gpu = {
-          busy = "/sys/class/drm/card1/device/gpu_busy_percent";
-          temp = "/sys/class/hwmon/hwmon1/temp1_input";
-        };
+      cpuTemp = "/sys/class/hwmon/hwmon2/temp1_input";
+      gpu = {
+        busy = "/sys/class/drm/card1/device/gpu_busy_percent";
+        temp = "/sys/class/hwmon/hwmon1/temp1_input";
       };
     };
 
-    homeModules = commonHome ++ [
-      ./arch/home.nix
-      ../modules/alacritty/home.nix
-      ../modules/desktop/waybar/home.nix
-      ../modules/dev/home.nix
-      ../modules/pi/home.nix
+    modules = common ++ [
+      ./arch.nix
+      ../modules/dev.nix
+      ../modules/alacritty.nix
+      ../modules/niri
+      ../modules/waybar.nix
     ];
   };
 
   hunter-mac = {
     kind = "home";
-    hostname = "Hunters-Air";
+    hostname = "Hunters-MacBook-Air";
     system = "aarch64-darwin";
     stateVersion = "26.05";
 
-    user = {
+    user = hunter // {
       name = "hunterross";
-      fullName = "Hunter Ross";
-      email = "hlross@umich.edu";
       home = "/Users/hunterross";
     };
 
-    homeModules = commonHome ++ [
-      ../modules/pi/home.nix
-    ];
+    modules = common;
   };
 
   aspire = {
@@ -77,29 +62,20 @@ in
     system = "x86_64-linux";
     stateVersion = "26.05";
 
-    user = {
+    user = hunter // {
       name = "hunter";
-      fullName = "Hunter Ross";
-      email = "hlross@umich.edu";
       home = "/home/hunter";
-      sshKeys = sshKeys.hunter;
     };
 
-    nixosModules = commonNixos ++ [
-      ./aspire/default.nix
-      ./aspire/hardware-configuration.nix
-      ../modules/desktop/niri/nixos.nix
-      ../modules/nixos/tailscale.nix
-      ../modules/pi/nixos.nix
+    modules = common ++ [
+      ./aspire
+      ../modules/system.nix
+      ../modules/openssh.nix
+      ../modules/tailscale.nix
+      ../modules/dev.nix
+      ../modules/alacritty.nix
+      ../modules/niri
+      ../modules/waybar.nix
     ];
-
-    homeModules =
-      commonHome
-      ++ graphicalHome
-      ++ [
-        ../modules/desktop/niri/home.nix
-        ../modules/dev/home.nix
-        ../modules/pi/home.nix
-      ];
   };
 }

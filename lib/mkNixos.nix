@@ -6,6 +6,11 @@
 
 host:
 
+let
+  components = map (path: import path) host.modules;
+  homeModules = builtins.catAttrs "home" components;
+  nixosModules = builtins.catAttrs "nixos" components;
+in
 nixpkgs.lib.nixosSystem {
   system = host.system;
 
@@ -13,7 +18,7 @@ nixpkgs.lib.nixosSystem {
     inherit inputs host;
   };
 
-  modules = host.nixosModules ++ [
+  modules = nixosModules ++ [
     {
       nixpkgs.config.allowUnfree = true;
     }
@@ -24,13 +29,13 @@ nixpkgs.lib.nixosSystem {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        backupFileExtension = "bak";
+        backupFileExtension = "backup";
 
         extraSpecialArgs = {
           inherit inputs host;
         };
 
-        users.${host.user.name}.imports = [ ./homeBase.nix ] ++ host.homeModules;
+        users.${host.user.name}.imports = [ ./homeBase.nix ] ++ homeModules;
       };
     }
   ];

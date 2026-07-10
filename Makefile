@@ -1,61 +1,51 @@
-# Host-aware workflow commands for this flake.
-# Override TARGET when needed, e.g. `make switch TARGET=hunter-arch`.
+# Host-aware workflow commands. Override with `make switch TARGET=<name>`.
 
-UNAME := $(shell uname -s)
-HOSTNAME := $(shell if [ -n "$$HOSTNAME" ]; then printf '%s\n' "$$HOSTNAME" | cut -d. -f1; elif command -v hostname >/dev/null 2>&1; then hostname -s 2>/dev/null || hostname; elif [ -r /proc/sys/kernel/hostname ]; then cut -d. -f1 /proc/sys/kernel/hostname; else uname -n | cut -d. -f1; fi)
-IS_NIXOS := $(shell test -e /etc/NIXOS && echo 1 || echo 0)
+HOSTNAME := $(shell hostname -s)
 
-ifeq ($(origin TARGET),undefined)
-  ifeq ($(HOSTNAME),Hunters-Air)
-    TARGET := hunter-mac
-  else ifeq ($(HOSTNAME),aspire)
-    TARGET := aspire
-  else ifeq ($(HOSTNAME),nixos)
-    TARGET := aspire
-  else ifeq ($(HOSTNAME),arch)
-    TARGET := hunter-arch
-  else
-    $(error Unknown host '$(HOSTNAME)'. Set TARGET explicitly, e.g. `make switch TARGET=hunter-mac`)
-  endif
+TARGET_Hunters-Air := hunter-mac
+TARGET_Hunters-MacBook-Air := hunter-mac
+TARGET_arch := hunter-arch
+TARGET_aspire := aspire
+TARGET_nixos := aspire
+
+TARGET ?= $(TARGET_$(HOSTNAME))
+
+ifeq ($(TARGET),)
+$(error Unknown host '$(HOSTNAME)'. Set TARGET explicitly, e.g. `make switch TARGET=hunter-mac`)
 endif
 
-ifeq ($(TARGET),hunter-mac)
-BUILD_CMD := home-manager build --flake .\#$(TARGET)
+HOME_TARGETS := hunter-arch hunter-mac
+NIXOS_TARGETS := aspire
+FLAKE := .\#$(TARGET)
+
+ifneq ($(filter $(TARGET),$(HOME_TARGETS)),)
+BUILD_CMD := home-manager build --flake $(FLAKE)
 TEST_CMD := $(BUILD_CMD)
-SWITCH_CMD := home-manager switch -b backup --flake .\#$(TARGET)
-else ifeq ($(TARGET),hunter-arch)
-BUILD_CMD := home-manager build --flake .\#$(TARGET)
-TEST_CMD := $(BUILD_CMD)
-SWITCH_CMD := home-manager switch -b backup --flake .\#$(TARGET)
-else ifeq ($(TARGET),aspire)
-BUILD_CMD := nixos-rebuild build --flake .\#$(TARGET)
-TEST_CMD := sudo nixos-rebuild test --flake .\#$(TARGET)
-SWITCH_CMD := sudo nixos-rebuild switch --flake .\#$(TARGET)
+SWITCH_CMD := home-manager switch -b backup --flake $(FLAKE)
+else ifneq ($(filter $(TARGET),$(NIXOS_TARGETS)),)
+BUILD_CMD := nixos-rebuild build --flake $(FLAKE)
+TEST_CMD := sudo nixos-rebuild test --flake $(FLAKE)
+SWITCH_CMD := sudo nixos-rebuild switch --flake $(FLAKE)
 else
-$(error Unknown TARGET '$(TARGET)'. Expected hunter-mac, hunter-arch, or aspire)
+$(error Unknown TARGET '$(TARGET)'. Expected one of: $(HOME_TARGETS) $(NIXOS_TARGETS))
 endif
 
 .PHONY: target build test switch update upgrade fmt check clean
 
 target:
-	@echo "uname:    $(UNAME)"
 	@echo "hostname: $(HOSTNAME)"
-	@echo "nixos:    $(IS_NIXOS)"
 	@echo "target:   $(TARGET)"
 	@echo "build:    $(BUILD_CMD)"
 	@echo "test:     $(TEST_CMD)"
 	@echo "switch:   $(SWITCH_CMD)"
 
 build:
-	@echo "building target: $(TARGET)"
 	$(BUILD_CMD)
 
 test:
-	@echo "testing target: $(TARGET)"
 	$(TEST_CMD)
 
 switch:
-	@echo "switching target: $(TARGET)"
 	$(SWITCH_CMD)
 
 update:
@@ -67,7 +57,7 @@ fmt:
 	nix fmt
 
 check:
-	nix flake check
+	nix flake check --all-systems
 
 clean:
 	nix-collect-garbage -d
