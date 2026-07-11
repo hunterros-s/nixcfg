@@ -13,5 +13,5 @@ home-manager.lib.homeManagerConfiguration {
     inherit inputs host;
   };
 
-  modules = [ ./homeBase.nix ] ++ host.homeModules;
+  modules = [ host.homeModule ];
 }

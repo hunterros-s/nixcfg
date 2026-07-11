@@ -7,13 +7,15 @@
 host:
 
 nixpkgs.lib.nixosSystem {
-  system = host.system;
+  inherit (host) system;
 
   specialArgs = {
     inherit inputs host;
   };
 
-  modules = host.nixosModules ++ [
+  modules = [
+    host.nixosModule
+
     {
       nixpkgs.config.allowUnfree = true;
     }
@@ -30,7 +32,7 @@ nixpkgs.lib.nixosSystem {
           inherit inputs host;
         };
 
-        users.${host.user.name}.imports = [ ./homeBase.nix ] ++ host.homeModules;
+        users.${host.user.name} = host.homeModule;
       };
     }
   ];
