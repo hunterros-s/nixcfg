@@ -6,11 +6,6 @@
 
 host:
 
-let
-  components = map (path: import path) host.modules;
-  homeModules = builtins.catAttrs "home" components;
-  nixosModules = builtins.catAttrs "nixos" components;
-in
 nixpkgs.lib.nixosSystem {
   system = host.system;
 
@@ -18,7 +13,7 @@ nixpkgs.lib.nixosSystem {
     inherit inputs host;
   };
 
-  modules = nixosModules ++ [
+  modules = host.nixosModules ++ [
     {
       nixpkgs.config.allowUnfree = true;
     }
@@ -35,7 +30,7 @@ nixpkgs.lib.nixosSystem {
           inherit inputs host;
         };
 
-        users.${host.user.name}.imports = [ ./homeBase.nix ] ++ homeModules;
+        users.${host.user.name}.imports = [ ./homeBase.nix ] ++ host.homeModules;
       };
     }
   ];

@@ -30,7 +30,7 @@ else
 $(error Unknown TARGET '$(TARGET)'. Expected one of: $(HOME_TARGETS) $(NIXOS_TARGETS))
 endif
 
-.PHONY: target build test switch update upgrade fmt check clean
+.PHONY: target build test switch gpu-setup update upgrade fmt check clean
 
 target:
 	@echo "hostname: $(HOSTNAME)"
@@ -47,6 +47,15 @@ test:
 
 switch:
 	$(SWITCH_CMD)
+
+gpu-setup:
+	@if [ "$(TARGET)" != "hunter-arch" ]; then \
+		echo "gpu-setup is only needed for hunter-arch"; \
+		exit 1; \
+	fi
+	@package="$$(nix build --no-link --print-out-paths \
+		'.#homeConfigurations.hunter-arch.config.targets.genericLinux.gpu.setupPackage')"; \
+	sudo "$$package/bin/non-nixos-gpu-setup"
 
 update:
 	nix flake update

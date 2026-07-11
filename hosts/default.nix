@@ -1,15 +1,21 @@
 let
   hunter = import ../users/hunter.nix;
 
-  common = [
-    ../modules/cli.nix
-    ../modules/tmux.nix
-    ../modules/fzf.nix
-    ../modules/direnv.nix
-    ../modules/git.nix
-    ../modules/zsh.nix
-    ../modules/neovim.nix
-    ../modules/pi.nix
+  commonHome = [
+    ../modules/home/cli.nix
+    ../modules/home/tmux.nix
+    ../modules/home/fzf.nix
+    ../modules/home/direnv.nix
+    ../modules/home/git.nix
+    ../modules/home/zsh.nix
+    ../modules/home/neovim.nix
+    ../modules/home/pi.nix
+  ];
+
+  commonNixos = [
+    ../modules/nixos/system.nix
+    ../modules/nixos/zsh.nix
+    ../modules/nixos/pi.nix
   ];
 in
 {
@@ -32,12 +38,10 @@ in
       };
     };
 
-    modules = common ++ [
-      ./arch.nix
-      ../modules/dev.nix
-      ../modules/alacritty.nix
-      ../modules/niri
-      ../modules/waybar.nix
+    homeModules = commonHome ++ [
+      ./arch-home.nix
+      ../modules/home/dev.nix
+      ../modules/home/desktop
     ];
   };
 
@@ -52,7 +56,7 @@ in
       home = "/Users/hunterross";
     };
 
-    modules = common;
+    homeModules = commonHome;
   };
 
   aspire = {
@@ -66,15 +70,16 @@ in
       home = "/home/hunter";
     };
 
-    modules = common ++ [
+    homeModules = commonHome ++ [
+      ../modules/home/dev.nix
+      ../modules/home/desktop
+    ];
+
+    nixosModules = commonNixos ++ [
       ./aspire
-      ../modules/system.nix
-      ../modules/openssh.nix
-      ../modules/tailscale.nix
-      ../modules/dev.nix
-      ../modules/alacritty.nix
-      ../modules/niri
-      ../modules/waybar.nix
+      ../modules/nixos/desktop.nix
+      ../modules/nixos/openssh.nix
+      ../modules/nixos/tailscale.nix
     ];
   };
 }
