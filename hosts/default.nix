@@ -108,32 +108,6 @@ in
       ../modules/home/desktop
     ];
 
-    nixosModule =
-      { pkgs, ... }:
-      {
-        imports = [
-          ./aspire/hardware-configuration.nix
-          ../modules/nixos/system.nix
-          ../modules/nixos/zsh.nix
-          ../modules/nixos/pi.nix
-          ../modules/nixos/desktop.nix
-          ../modules/nixos/openssh.nix
-          ../modules/nixos/tailscale.nix
-        ];
-
-        boot.loader.systemd-boot.enable = true;
-        boot.loader.efi.canTouchEfiVariables = true;
-        boot.kernelPackages = pkgs.linuxPackages_latest;
-
-        networking.networkmanager.enable = true;
-        networking.interfaces.enp1s0f1.wakeOnLan.enable = true;
-
-        # This machine is usually docked; do not sleep when the lid closes.
-        services.logind.settings.Login = {
-          HandleLidSwitch = "ignore";
-          HandleLidSwitchExternalPower = "ignore";
-          HandleLidSwitchDocked = "ignore";
-        };
-      };
+    nixosModule = ./aspire/nixos.nix;
   };
 }
