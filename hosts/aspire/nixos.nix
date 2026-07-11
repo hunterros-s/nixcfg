@@ -12,8 +12,11 @@
     hostName = host.hostname;
     networkmanager.enable = true;
     interfaces.enp1s0f1.wakeOnLan.enable = true;
-    # ntfy is reachable only from the tailnet.
-    firewall.interfaces.tailscale0.allowedTCPPorts = [ 2586 ];
+    # Remote services are reachable only from the tailnet.
+    firewall.interfaces.tailscale0.allowedTCPPorts = [
+      22
+      2586
+    ];
   };
 
   time.timeZone = host.timeZone or "America/New_York";
@@ -61,6 +64,7 @@
 
     openssh = {
       enable = true;
+      openFirewall = false;
       settings = {
         PermitRootLogin = "no";
         PasswordAuthentication = false;
