@@ -70,7 +70,7 @@
     ntfy-sh = {
       enable = true;
       settings = {
-        base-url = "http://aspire:2586";
+        base-url = "http://100.80.194.77:2586";
         listen-http = ":2586";
         # Wake the iOS app through APNs; message contents remain on this server.
         upstream-base-url = "https://ntfy.sh";
