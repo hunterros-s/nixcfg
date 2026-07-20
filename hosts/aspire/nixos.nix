@@ -2,6 +2,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./minecraft.nix
   ];
 
   boot.loader.systemd-boot.enable = true;
@@ -12,11 +13,16 @@
     hostName = host.hostname;
     networkmanager.enable = true;
     interfaces.enp1s0f1.wakeOnLan.enable = true;
-    # Remote services are reachable only from the tailnet.
-    firewall.interfaces.tailscale0.allowedTCPPorts = [
-      22
-      2586
-    ];
+
+    # Expose remote services only through Tailscale.
+    firewall.interfaces.tailscale0 = {
+      allowedTCPPorts = [
+        22
+        2586
+        25565
+      ];
+      allowedUDPPorts = [ 24454 ];
+    };
   };
 
   time.timeZone = host.timeZone or "America/New_York";
