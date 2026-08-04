@@ -1,0 +1,13 @@
+name = "everyone_creates_serverpack"
+author = "PinkLasagna"
+version = "v1.1"
+pack-format = "packwiz:1.1.0"
+
+[index]
+file = "index.toml"
+hash-format = "sha256"
+hash = "cd1efee259fe779fae25aa0f8c1e29c6ce94e694727fc917a8661780b630403c"
+
+[versions]
+minecraft = "1.21.1"
+neoforge = "21.1.235"

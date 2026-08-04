@@ -1,0 +1,13 @@
+name = "Create: Droid Diamond"
+filename = "create_droid_diamond-1.5.7.jar"
+side = "both"
+
+[download]
+hash-format = "sha1"
+hash = "42186edb1eabc88548ff36a546e5164baa925d6b"
+mode = "metadata:curseforge"
+
+[update]
+[update.curseforge]
+file-id = 7687087
+project-id = 1023696

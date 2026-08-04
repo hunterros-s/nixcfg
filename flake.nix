@@ -8,6 +8,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    nix-minecraft.url = "github:Infinidoge/nix-minecraft";
   };
 
   outputs =
