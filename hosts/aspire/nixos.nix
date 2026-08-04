@@ -12,6 +12,7 @@
   networking = {
     hostName = host.hostname;
     networkmanager.enable = true;
+    nftables.enable = true;
     interfaces.enp1s0f1.wakeOnLan.enable = true;
 
     # Expose remote services only through Tailscale.
