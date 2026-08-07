@@ -85,17 +85,5 @@
       homeConfigurations = lib.mapAttrs (_: host: mkHome host) homeHosts;
 
       nixosConfigurations = lib.mapAttrs (_: host: mkNixos host) nixosHosts;
-
-      # Repo shell: pinned home-manager CLI + the rebuild/nixfmt tools you
-      # actually use via `make`. Enable with `direnv allow` (see .envrc).
-      devShells = lib.genAttrs systems (system: {
-        default = (mkPkgs system).mkShell {
-          packages = [
-            home-manager.packages.${system}.default
-            (mkPkgs system).nixos-rebuild
-            (mkPkgs system).nixfmt-rfc-style
-          ];
-        };
-      });
     };
 }
