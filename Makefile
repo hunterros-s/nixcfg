@@ -6,7 +6,6 @@ TARGET_Hunters-Air := hunter-mac
 TARGET_Hunters-MacBook-Air := hunter-mac
 TARGET_arch := hunter-arch
 TARGET_aspire := aspire
-TARGET_nixos := aspire
 
 TARGET ?= $(TARGET_$(HOSTNAME))
 

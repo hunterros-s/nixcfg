@@ -1,15 +1,7 @@
+# Host registry. Each host is data (kind/system/user) plus a minimal
+# homeModule that pulls in the shared base and only its own deltas.
 let
   hunter = import ../users/hunter.nix;
-
-  homeBase =
-    { host, ... }:
-    {
-      home.username = host.user.name;
-      home.homeDirectory = host.user.home;
-      home.stateVersion = host.stateVersion; # do not change
-
-      programs.home-manager.enable = true;
-    };
 in
 {
   hunter-arch = {
@@ -33,15 +25,7 @@ in
 
     homeModule = {
       imports = [
-        homeBase
-        ../modules/home/cli.nix
-        ../modules/home/tmux.nix
-        ../modules/home/fzf.nix
-        ../modules/home/direnv.nix
-        ../modules/home/git.nix
-        ../modules/home/zsh.nix
-        ../modules/home/neovim.nix
-        ../modules/home/pi.nix
+        ../modules/home/base.nix
         ../modules/home/dev.nix
         ../modules/home/desktop
       ];
@@ -70,17 +54,7 @@ in
       home = "/Users/hunterross";
     };
 
-    homeModule.imports = [
-      homeBase
-      ../modules/home/cli.nix
-      ../modules/home/tmux.nix
-      ../modules/home/fzf.nix
-      ../modules/home/direnv.nix
-      ../modules/home/git.nix
-      ../modules/home/zsh.nix
-      ../modules/home/neovim.nix
-      ../modules/home/pi.nix
-    ];
+    homeModule.imports = [ ../modules/home/base.nix ];
   };
 
   aspire = {
@@ -94,19 +68,13 @@ in
       home = "/home/hunter";
     };
 
-    homeModule.imports = [
-      homeBase
-      ../modules/home/cli.nix
-      ../modules/home/tmux.nix
-      ../modules/home/fzf.nix
-      ../modules/home/direnv.nix
-      ../modules/home/git.nix
-      ../modules/home/zsh.nix
-      ../modules/home/neovim.nix
-      ../modules/home/pi.nix
-      ../modules/home/dev.nix
-      ../modules/home/desktop
-    ];
+    homeModule = {
+      imports = [
+        ../modules/home/base.nix
+        ../modules/home/dev.nix
+        ../modules/home/desktop
+      ];
+    };
 
     nixosModule = ./aspire/nixos.nix;
   };

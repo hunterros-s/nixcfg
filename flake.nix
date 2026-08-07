@@ -23,32 +23,79 @@
       hosts = lib.mapAttrs (name: host: host // { inherit name; }) (import ./hosts);
       systems = lib.unique (map (host: host.system) (lib.attrValues hosts));
 
-      pkgsFor = lib.genAttrs systems (
+      mkPkgs =
         system:
         import nixpkgs {
           inherit system;
           config.allowUnfree = true;
-        }
-      );
+        };
 
-      mkPkgs = system: pkgsFor.${system};
+      mkHome =
+        host:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = mkPkgs host.system;
 
-      mkHome = import ./lib/mkHome.nix {
-        inherit inputs home-manager mkPkgs;
-      };
+          extraSpecialArgs = {
+            inherit inputs host;
+          };
 
-      mkNixos = import ./lib/mkNixos.nix {
-        inherit inputs nixpkgs home-manager;
-      };
+          modules = [ host.homeModule ];
+        };
+
+      mkNixos =
+        host:
+        nixpkgs.lib.nixosSystem {
+          inherit (host) system;
+
+          specialArgs = {
+            inherit inputs host;
+          };
+
+          modules = [
+            host.nixosModule
+
+            {
+              nixpkgs.pkgs = mkPkgs host.system;
+            }
+
+            home-manager.nixosModules.home-manager
+
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "backup";
+
+                extraSpecialArgs = {
+                  inherit inputs host;
+                };
+
+                users.${host.user.name} = host.homeModule;
+              };
+            }
+          ];
+        };
 
       homeHosts = lib.filterAttrs (_: host: host.kind == "home") hosts;
       nixosHosts = lib.filterAttrs (_: host: host.kind == "nixos") hosts;
     in
     {
-      formatter = lib.genAttrs systems (system: pkgsFor.${system}.nixfmt-tree);
+      formatter = lib.genAttrs systems (system: (mkPkgs system).nixfmt-tree);
 
       homeConfigurations = lib.mapAttrs (_: host: mkHome host) homeHosts;
 
       nixosConfigurations = lib.mapAttrs (_: host: mkNixos host) nixosHosts;
+
+      # Repo shell: pinned home-manager CLI + the rebuild/nixfmt tools you
+      # actually use via `make`. Enable with `direnv allow` (see .envrc).
+      devShells = lib.genAttrs systems (system: {
+        default = (mkPkgs system).mkShell {
+          packages = [
+            home-manager.packages.${system}.default
+            (mkPkgs system).nixos-rebuild
+            (mkPkgs system).nixfmt-tree
+          ];
+        };
+      });
     };
 }
