@@ -93,7 +93,7 @@
           packages = [
             home-manager.packages.${system}.default
             (mkPkgs system).nixos-rebuild
-            (mkPkgs system).nixfmt-tree
+            (mkPkgs system).nixfmt-rfc-style
           ];
         };
       });
