@@ -83,5 +83,5 @@ binds {
 
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
-    Ctrl+Alt+Delete { quit; }
+    Mod+Shift+Escape { quit; }
 }
