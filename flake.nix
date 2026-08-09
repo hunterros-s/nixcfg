@@ -34,7 +34,7 @@
       };
 
       homeConfigurations = {
-        hunter-arch = home-manager.lib.homeManagerConfiguration {
+        arch = home-manager.lib.homeManagerConfiguration {
           pkgs = linuxPkgs;
           extraSpecialArgs = { inherit inputs; };
           modules = [
@@ -60,7 +60,7 @@
           ];
         };
 
-        hunter-mac = home-manager.lib.homeManagerConfiguration {
+        hunterross = home-manager.lib.homeManagerConfiguration {
           pkgs = macPkgs;
           extraSpecialArgs = { inherit inputs; };
           modules = [
