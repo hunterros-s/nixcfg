@@ -1,11 +1,10 @@
-# Host registry. Each host is data (kind/system/user) plus a minimal
-# homeModule that pulls in the shared base and only its own deltas.
+# Host registry. Each host is data (system/user/stateVersion) plus a
+# minimal homeModule that pulls in the shared base and only its own deltas.
 let
   hunter = import ../users/hunter.nix;
 in
 {
   hunter-arch = {
-    kind = "home";
     hostname = "arch";
     system = "x86_64-linux";
     stateVersion = "26.05";
@@ -44,7 +43,6 @@ in
   };
 
   hunter-mac = {
-    kind = "home";
     hostname = "Hunters-MacBook-Air";
     system = "aarch64-darwin";
     stateVersion = "26.05";
@@ -58,7 +56,6 @@ in
   };
 
   aspire = {
-    kind = "nixos";
     hostname = "aspire";
     system = "x86_64-linux";
     stateVersion = "26.05";

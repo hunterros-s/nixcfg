@@ -12,78 +12,77 @@
   };
 
   outputs =
-    inputs@{
+    {
       nixpkgs,
       home-manager,
       ...
-    }:
+    }@inputs:
     let
-      lib = nixpkgs.lib;
+      hosts = import ./hosts;
 
-      hosts = lib.mapAttrs (name: host: host // { inherit name; }) (import ./hosts);
-      systems = lib.unique (map (host: host.system) (lib.attrValues hosts));
+      # nixpkgs with unfree software enabled, one instance per system.
+      archPkgs = import nixpkgs {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      };
+      macPkgs = import nixpkgs {
+        system = "aarch64-darwin";
+        config.allowUnfree = true;
+      };
 
-      mkPkgs =
-        system:
-        import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
-
-      mkHome =
-        host:
-        home-manager.lib.homeManagerConfiguration {
-          pkgs = mkPkgs host.system;
-
-          extraSpecialArgs = {
-            inherit inputs host;
-          };
-
-          modules = [ host.homeModule ];
-        };
-
-      mkNixos =
-        host:
-        nixpkgs.lib.nixosSystem {
-          inherit (host) system;
-
-          specialArgs = {
-            inherit inputs host;
-          };
-
-          modules = [
-            host.nixosModule
-
-            {
-              nixpkgs.pkgs = mkPkgs host.system;
-            }
-
-            home-manager.nixosModules.home-manager
-
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                backupFileExtension = "backup";
-
-                extraSpecialArgs = {
-                  inherit inputs host;
-                };
-
-                users.${host.user.name} = host.homeModule;
-              };
-            }
-          ];
-        };
-
-      homeHosts = lib.filterAttrs (_: host: host.kind == "home") hosts;
-      nixosHosts = lib.filterAttrs (_: host: host.kind == "nixos") hosts;
+      # Args every module receives: the flake inputs (pi.nix and minecraft.nix
+      # need them) plus this host's metadata from hosts/default.nix.
+      args = host: {
+        inherit inputs;
+        inherit host;
+      };
     in
     {
-      formatter = lib.genAttrs systems (system: (mkPkgs system).nixfmt-tree);
+      formatter = {
+        x86_64-linux = archPkgs.nixfmt-tree;
+        aarch64-darwin = macPkgs.nixfmt-tree;
+      };
 
-      homeConfigurations = lib.mapAttrs (_: host: mkHome host) homeHosts;
+      # Home-manager-only machines (non-NixOS).
+      homeConfigurations = {
+        hunter-arch = home-manager.lib.homeManagerConfiguration {
+          pkgs = archPkgs;
+          extraSpecialArgs = args hosts.hunter-arch;
+          modules = [ hosts.hunter-arch.homeModule ];
+        };
 
-      nixosConfigurations = lib.mapAttrs (_: host: mkNixos host) nixosHosts;
+        # AMD GPU setup for hunter-arch (run once per driver change):
+        #   nix build .#homeConfigurations.hunter-arch.config.targets.genericLinux.gpu.setupPackage
+        # then run the resulting bin/non-nixos-gpu-setup with sudo.
+
+        hunter-mac = home-manager.lib.homeManagerConfiguration {
+          pkgs = macPkgs;
+          extraSpecialArgs = args hosts.hunter-mac;
+          modules = [ hosts.hunter-mac.homeModule ];
+        };
+      };
+
+      # NixOS machine. aspire's home-manager config lives inside the system
+      # (see the home-manager NixOS module below), so there is deliberately no
+      # standalone homeConfigurations.aspire. Always build it with
+      # `nixos-rebuild`, not `home-manager`.
+      nixosConfigurations.aspire = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = args hosts.aspire;
+        modules = [
+          hosts.aspire.nixosModule
+          { nixpkgs.pkgs = archPkgs; }
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              backupFileExtension = "backup";
+              extraSpecialArgs = args hosts.aspire;
+              users.${hosts.aspire.user.name} = hosts.aspire.homeModule;
+            };
+          }
+        ];
+      };
     };
 }
