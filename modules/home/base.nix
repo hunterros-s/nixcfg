@@ -1,6 +1,6 @@
 # Shared base for every home config: home-manager essentials + the common CLI
-# toolchain. Per-host modules then only need to import this plus their deltas.
-{ host, ... }:
+# toolchain. Per-machine files then only import this plus their own deltas.
+{ ... }:
 {
   imports = [
     ./cli.nix
@@ -13,9 +13,9 @@
     ./pi.nix
   ];
 
-  home.username = host.user.name;
-  home.homeDirectory = host.user.home;
-  home.stateVersion = host.stateVersion; # do not change
+  # Username/home dir are set by each machine's file; stateVersion is the
+  # same everywhere today.
+  home.stateVersion = "26.05"; # do not change
 
   programs.home-manager.enable = true;
 }

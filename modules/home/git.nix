@@ -1,11 +1,14 @@
-{ host, ... }:
+{ ... }:
+let
+  user = import ../../users/hunter.nix;
+in
 {
   programs.git = {
     enable = true;
     settings = {
       user = {
-        name = host.user.fullName;
-        email = host.user.email;
+        name = user.fullName;
+        email = user.email;
       };
       init.defaultBranch = "main";
       pull.rebase = false;

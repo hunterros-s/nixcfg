@@ -1,4 +1,7 @@
-{ host, pkgs, ... }:
+{ pkgs, ... }:
+let
+  user = import ../../users/hunter.nix;
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -10,7 +13,7 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking = {
-    hostName = host.hostname;
+    hostName = "aspire";
     networkmanager.enable = true;
     nftables.enable = true;
     interfaces.enp1s0f1.wakeOnLan.enable = true;
@@ -25,15 +28,15 @@
     };
   };
 
-  time.timeZone = host.timeZone or "America/New_York";
-  i18n.defaultLocale = host.locale or "en_US.UTF-8";
+  time.timeZone = "America/New_York";
+  i18n.defaultLocale = "en_US.UTF-8";
 
-  users.users.${host.user.name} = {
+  users.users.hunter = {
     isNormalUser = true;
-    description = host.user.fullName;
-    extraGroups = [ "wheel" ] ++ (host.user.extraGroups or [ ]);
+    description = user.fullName;
+    extraGroups = [ "wheel" ] ++ (user.extraGroups or [ ]);
     shell = pkgs.zsh;
-    openssh.authorizedKeys.keys = host.user.sshKeys or [ ];
+    openssh.authorizedKeys.keys = user.sshKeys or [ ];
   };
 
   nix = {
@@ -101,5 +104,5 @@
     htop
   ];
 
-  system.stateVersion = host.stateVersion; # do not change
+  system.stateVersion = "26.05"; # do not change
 }

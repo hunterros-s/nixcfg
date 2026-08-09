@@ -18,9 +18,7 @@
       ...
     }@inputs:
     let
-      hosts = import ./hosts;
-
-      archPkgs = import nixpkgs {
+      linuxPkgs = import nixpkgs {
         system = "x86_64-linux";
         config.allowUnfree = true;
       };
@@ -28,47 +26,76 @@
         system = "aarch64-darwin";
         config.allowUnfree = true;
       };
-
-      # args every module receives
-      args = host: {
-        inherit inputs;
-        inherit host;
-      };
     in
     {
       formatter = {
-        x86_64-linux = archPkgs.nixfmt-tree;
+        x86_64-linux = linuxPkgs.nixfmt-tree;
         aarch64-darwin = macPkgs.nixfmt-tree;
       };
 
       homeConfigurations = {
         hunter-arch = home-manager.lib.homeManagerConfiguration {
-          pkgs = archPkgs;
-          extraSpecialArgs = args hosts.hunter-arch;
-          modules = [ hosts.hunter-arch.homeModule ];
+          pkgs = linuxPkgs;
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            {
+              imports = [
+                ./modules/home/base.nix
+                ./modules/home/dev.nix
+              ];
+
+              home.username = "hunter";
+              home.homeDirectory = "/home/hunter";
+
+              targets.genericLinux.enable = true;
+
+              home.sessionVariables.ROCM_PATH = "/opt/rocm";
+
+              home.sessionPath = [
+                "/opt/rocm/bin"
+                "$HOME/.local/bin"
+                "$HOME/.npm-global/bin"
+              ];
+            }
+          ];
         };
 
         hunter-mac = home-manager.lib.homeManagerConfiguration {
           pkgs = macPkgs;
-          extraSpecialArgs = args hosts.hunter-mac;
-          modules = [ hosts.hunter-mac.homeModule ];
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            {
+              imports = [ ./modules/home/base.nix ];
+
+              home.username = "hunterross";
+              home.homeDirectory = "/Users/hunterross";
+            }
+          ];
         };
       };
 
       nixosConfigurations.aspire = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = args hosts.aspire;
+        specialArgs = { inherit inputs; };
         modules = [
-          hosts.aspire.nixosModule
-          { nixpkgs.pkgs = archPkgs; }
+          ./hosts/aspire/nixos.nix
+          { nixpkgs.pkgs = linuxPkgs; }
           home-manager.nixosModules.home-manager
           {
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "backup";
-              extraSpecialArgs = args hosts.aspire;
-              users.${hosts.aspire.user.name} = hosts.aspire.homeModule;
+              extraSpecialArgs = { inherit inputs; };
+              users.hunter = {
+                imports = [
+                  ./modules/home/base.nix
+                  ./modules/home/dev.nix
+                ];
+
+                home.username = "hunter";
+                home.homeDirectory = "/home/hunter";
+              };
             };
           }
         ];
