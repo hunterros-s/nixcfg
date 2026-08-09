@@ -20,7 +20,6 @@
     let
       hosts = import ./hosts;
 
-      # nixpkgs with unfree software enabled, one instance per system.
       archPkgs = import nixpkgs {
         system = "x86_64-linux";
         config.allowUnfree = true;
@@ -30,8 +29,7 @@
         config.allowUnfree = true;
       };
 
-      # Args every module receives: the flake inputs (pi.nix and minecraft.nix
-      # need them) plus this host's metadata from hosts/default.nix.
+      # args every module receives
       args = host: {
         inherit inputs;
         inherit host;
@@ -43,17 +41,12 @@
         aarch64-darwin = macPkgs.nixfmt-tree;
       };
 
-      # Home-manager-only machines (non-NixOS).
       homeConfigurations = {
         hunter-arch = home-manager.lib.homeManagerConfiguration {
           pkgs = archPkgs;
           extraSpecialArgs = args hosts.hunter-arch;
           modules = [ hosts.hunter-arch.homeModule ];
         };
-
-        # AMD GPU setup for hunter-arch (run once per driver change):
-        #   nix build .#homeConfigurations.hunter-arch.config.targets.genericLinux.gpu.setupPackage
-        # then run the resulting bin/non-nixos-gpu-setup with sudo.
 
         hunter-mac = home-manager.lib.homeManagerConfiguration {
           pkgs = macPkgs;
@@ -62,10 +55,6 @@
         };
       };
 
-      # NixOS machine. aspire's home-manager config lives inside the system
-      # (see the home-manager NixOS module below), so there is deliberately no
-      # standalone homeConfigurations.aspire. Always build it with
-      # `nixos-rebuild`, not `home-manager`.
       nixosConfigurations.aspire = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = args hosts.aspire;
