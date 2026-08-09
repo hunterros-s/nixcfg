@@ -1,3 +1,4 @@
+# Shell experience: zsh, tmux, fzf, direnv.
 {
   programs.zsh = {
     enable = true;
@@ -24,5 +25,21 @@
       zstyle ':vcs_info:git:*' formats ' %F{yellow}(%b)%f'
       PROMPT='[%F{green}%n@%m%f] %F{blue}%~%f''${vcs_info_msg_0_} %# '
     '';
+  };
+
+  programs.tmux = {
+    enable = true;
+    mouse = true;
+    keyMode = "vi";
+    historyLimit = 50000;
+    escapeTime = 10;
+    terminal = "tmux-256color";
+  };
+
+  programs.fzf.enable = true;
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
   };
 }

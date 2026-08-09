@@ -16,11 +16,5 @@
     ninja
     pkg-config
     gnumake
-
-    # Useful development CLIs
-    jq
-    yq
-    just
-    shellcheck
   ];
 }

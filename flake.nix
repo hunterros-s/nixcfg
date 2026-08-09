@@ -40,8 +40,8 @@
           modules = [
             {
               imports = [
-                ./modules/home/base.nix
-                ./modules/home/dev.nix
+                ./home/base.nix
+                ./home/dev.nix
               ];
 
               home.username = "hunter";
@@ -65,7 +65,7 @@
           extraSpecialArgs = { inherit inputs; };
           modules = [
             {
-              imports = [ ./modules/home/base.nix ];
+              imports = [ ./home/base.nix ];
 
               home.username = "hunterross";
               home.homeDirectory = "/Users/hunterross";
@@ -89,8 +89,8 @@
               extraSpecialArgs = { inherit inputs; };
               users.hunter = {
                 imports = [
-                  ./modules/home/base.nix
-                  ./modules/home/dev.nix
+                  ./home/base.nix
+                  ./home/dev.nix
                 ];
 
                 home.username = "hunter";
