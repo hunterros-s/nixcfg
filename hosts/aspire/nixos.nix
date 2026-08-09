@@ -97,6 +97,37 @@ in
     };
   };
 
+  systemd.services.reddit-ssd-notifier = {
+    description = "r/buildapcsales SSD notifier";
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
+    after = [
+      "network-online.target"
+      "ntfy-sh.service"
+    ];
+
+    environment = {
+      NTFY_URL = "http://127.0.0.1:2586/reddit-ssd";
+      PYTHONUNBUFFERED = "1";
+    };
+
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.python3}/bin/python3 ${./reddit_ssd_notifier.py} --state-file /var/lib/reddit-ssd-notifier/state.json";
+      Restart = "always";
+      RestartSec = "10s";
+
+      DynamicUser = true;
+      StateDirectory = "reddit-ssd-notifier";
+      WorkingDirectory = "/var/lib/reddit-ssd-notifier";
+
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+      ProtectHome = true;
+      ProtectSystem = "strict";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     vim
     wget
