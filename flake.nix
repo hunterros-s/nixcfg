@@ -42,6 +42,8 @@
               imports = [
                 ./home/base.nix
                 ./home/dev.nix
+                ./home/desktop.nix
+                ./home/gaming.nix
               ];
 
               home.username = "hunter";
