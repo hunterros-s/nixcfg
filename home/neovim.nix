@@ -23,12 +23,16 @@
       lua-language-server
       nil
       pyright
-      rust-analyzer
+      rust-analyzer-unwrapped
       zls
       ripgrep
       fd
     ];
 
-    initLua = builtins.readFile ./neovim.lua;
+    initLua = builtins.readFile ./neovim.lua + "
+      vim.lsp.config('rust_analyzer', {
+        cmd = { '${pkgs.rust-analyzer-unwrapped}/bin/rust-analyzer' },
+      })
+    ";
   };
 }

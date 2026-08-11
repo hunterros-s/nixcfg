@@ -109,7 +109,13 @@ require('blink.cmp').setup({
 
   -- potentially safer on nix. look into this more
   fuzzy = {
-    implementation = 'lua',
+    implementation = 'prefer_rust_with_warning',
+    sorts = {
+      'score',
+      -- prefer shorter labels when scores tie (e.g. "string" over "stringify" for "stri")
+      function(a, b) if a.score ~= b.score then return end; return #a.label < #b.label end,
+      'sort_text',
+    },
   },
 })
 
