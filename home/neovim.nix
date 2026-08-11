@@ -23,6 +23,8 @@
       lua-language-server
       nil
       pyright
+      rust-analyzer
+      zls
       ripgrep
       fd
     ];

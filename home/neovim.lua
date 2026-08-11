@@ -33,10 +33,6 @@ vim.diagnostic.config({
   },
 })
 
--- Treesitter highlighting, folds, and indentation.
--- On NixOS, parsers are provided by:
---   pkgs.vimPlugins.nvim-treesitter.withAllGrammars
--- So do NOT use :TSInstall / :TSUpdate here.
 vim.api.nvim_create_autocmd('FileType', {
   callback = function(args)
     local ft = vim.bo[args.buf].filetype
@@ -46,28 +42,20 @@ vim.api.nvim_create_autocmd('FileType', {
       return
     end
 
-    -- Important: do not use only pcall here.
-    -- language.add returns true/nil depending on parser availability.
     local ok = vim.treesitter.language.add(lang)
 
     if ok then
       vim.treesitter.start(args.buf, lang)
 
-      -- Treesitter folding.
       vim.wo.foldmethod = 'expr'
       vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
       vim.wo.foldenable = false
 
-      -- Treesitter indentation. Experimental, but usually fine.
       vim.bo[args.buf].indentexpr =
         "v:lua.require'nvim-treesitter'.indentexpr()"
     end
   end,
 })
-
--- LSP setup, Neovim 0.11+ style.
--- nvim-lspconfig still provides the server configs;
--- we just do not use require('lspconfig') anymore.
 
 vim.lsp.config('lua_ls', {
   settings = {
@@ -81,10 +69,14 @@ vim.lsp.config('lua_ls', {
 
 vim.lsp.config('nil_ls', {})
 vim.lsp.config('pyright', {})
+vim.lsp.config('rust_analyzer', {})
+vim.lsp.config('zls', {})
 
 vim.lsp.enable('lua_ls')
 vim.lsp.enable('nil_ls')
 vim.lsp.enable('pyright')
+vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('zls')
 
 -- Telescope basics.
 local builtin = require('telescope.builtin')
