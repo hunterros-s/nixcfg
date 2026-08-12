@@ -2,6 +2,7 @@
 {
   home.packages = with pkgs; [
     hyprland
+    hyprpaper
     ghostty
     hyprlauncher
     xwayland
@@ -16,4 +17,17 @@
   };
 
   xdg.configFile."hypr/hyprland.lua".source = ./hyprland.lua;
+
+  services.hyprpaper = {
+    enable = true;
+    settings = {
+      splash = false;
+      wallpaper = [
+        {
+          monitor = "";
+          path = "~/wallpapers/wallpaper.jpg";
+        }  
+      ];
+    };
+  };
 }

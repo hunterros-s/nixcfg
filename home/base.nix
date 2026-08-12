@@ -20,6 +20,7 @@ in
     tree
   ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
     fastfetch
+    btop
   ];
 
   home.sessionVariables = {
