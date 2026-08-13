@@ -8,6 +8,7 @@
     amdgpu_top
     xwayland-satellite
     vulkan-tools
+    overskride
   ];
 
   fonts.fontconfig.enable = true;
