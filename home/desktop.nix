@@ -8,7 +8,6 @@
     amdgpu_top
     xwayland-satellite
     vulkan-tools
-    bluez
     overskride
   ];
 
