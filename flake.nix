@@ -67,7 +67,10 @@
           extraSpecialArgs = { inherit inputs; };
           modules = [
             {
-              imports = [ ./home/base.nix ];
+              imports = [
+                ./home/base.nix
+                ./home/dev.nix
+              ];
 
               home.username = "hunterross";
               home.homeDirectory = "/Users/hunterross";
