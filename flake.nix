@@ -69,7 +69,6 @@
             {
               imports = [
                 ./home/base.nix
-                ./home/dev.nix
               ];
 
               home.username = "hunterross";
