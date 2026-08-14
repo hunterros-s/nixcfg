@@ -8,6 +8,7 @@
     rustup
     zig
     uv
+    cargo
 
     # Build tooling
     clang
