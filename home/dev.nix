@@ -5,7 +5,9 @@
     go
     nodejs_24
     pnpm
-    cargo
     uv
+
+    rustc
+    cargo
   ];
 }
