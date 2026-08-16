@@ -5,16 +5,7 @@
     go
     nodejs_24
     pnpm
-    rustup
-    zig
+    cargo
     uv
-
-    # Build tooling
-    clang
-    lld
-    cmake
-    ninja
-    pkg-config
-    gnumake
   ];
 }
