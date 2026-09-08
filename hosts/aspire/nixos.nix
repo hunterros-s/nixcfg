@@ -5,7 +5,7 @@ in
 {
   imports = [
     ./hardware-configuration.nix
-    ./minecraft.nix
+    ./steamos.nix
   ];
 
   boot.loader.systemd-boot.enable = true;
@@ -23,7 +23,6 @@ in
       allowedTCPPorts = [
         22
         2586
-        25565
       ];
     };
   };

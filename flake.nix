@@ -9,6 +9,10 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     nix-minecraft.url = "github:Infinidoge/nix-minecraft";
+    jovian-nixos = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
