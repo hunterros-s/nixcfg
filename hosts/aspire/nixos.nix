@@ -96,6 +96,19 @@ in
     };
   };
 
+  # Never suspend: this is a docked HTPC and Steam's Deck-UI Sleep button goes
+  # through logind Suspend(). Disabling all sleep modes at the systemd source
+  # makes every suspend path a no-op, and Steam hides the Sleep power-menu
+  # entry when logind advertises AllowSuspend=no. (Note: `systemctl mask
+  # suspend.target` does NOT reliably prevent suspend — nixpkgs#79437/#354385 —
+  # which is why we set AllowSuspend=no instead.)
+  systemd.sleep.settings.Sleep = {
+    AllowSuspend = "no";
+    AllowHibernation = "no";
+    AllowHybridSleep = "no";
+    AllowSuspendThenHibernate = "no";
+  };
+
   systemd.services.reddit-ssd-notifier = {
     description = "r/buildapcsales SSD notifier";
     wantedBy = [ "multi-user.target" ];
