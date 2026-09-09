@@ -8,10 +8,11 @@ let
   # re-point Jovian's vendored src/version at our nixpkgs' own gamescope.
   # Because both version *and* source come from our nixpkgs, this stays
   # correct through every `nix flake update` and even branch upgrades.
-  vanillaGamescope = (import inputs.nixpkgs {
-    system = "x86_64-linux";
-    config.allowUnfree = true;
-  }).gamescope;
+  vanillaGamescope =
+    (import inputs.nixpkgs {
+      system = "x86_64-linux";
+      config.allowUnfree = true;
+    }).gamescope;
 in
 {
   imports = [
@@ -32,7 +33,8 @@ in
   };
 
   nixpkgs.overlays = [
-    (final: prev:
+    (
+      final: prev:
       let
         gamescope = prev.gamescope.overrideAttrs {
           src = vanillaGamescope.src;
@@ -47,7 +49,8 @@ in
           enableExecutable = false;
           enableWsi = true;
         };
-      })
+      }
+    )
   ];
 
   # The Deck UI's Bluetooth panel talks to BlueZ (WiFi settings already work
@@ -60,4 +63,8 @@ in
     audio.enable = true;
     pulse.enable = true;
   };
+
+  environment.systemPackages = with pkgs; [
+    moonlight-qt
+  ];
 }
