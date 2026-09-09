@@ -1,17 +1,17 @@
 { inputs, pkgs, ... }:
 let
-  # Our nixpkgs' own, un-overlaid gamescope derivation. Jovian vendors Valve's
-  # gamescope tag to match SteamOS (see their overlay.nix), which keeps nixpkgs'
-  # gamescope patches — written for the version *our* nixpkgs ships — applied to
-  # a different source tree, so the patch hunks fail. On a non-Deck HTPC the
-  # stock compositor is exactly right, so instead of pinning a version by hand,
-  # re-point Jovian's vendored src/version at our nixpkgs' own gamescope.
-  # Because both version *and* source come from our nixpkgs, this stays
-  # correct through every `nix flake update` and even branch upgrades.
-  vanillaGamescope = (import inputs.nixpkgs {
-    system = "x86_64-linux";
+  vanillaGamescope =
+    (import inputs.nixpkgs {
+      system = "x86_64-linux";
+      config.allowUnfree = true;
+    }).gamescope;
+  # Steam's remote-play decoder is a 32-bit binary: it loads a 32-bit VA-API
+  # driver from /run/opengl-driver-32, so both arches of the Intel i965 driver
+  # must be present for hardware decoding to work on this laptop's iGPU.
+  pkgsi686Linux = import inputs.nixpkgs {
+    system = "i686-linux";
     config.allowUnfree = true;
-  }).gamescope;
+  };
 in
 {
   imports = [
@@ -32,7 +32,8 @@ in
   };
 
   nixpkgs.overlays = [
-    (final: prev:
+    (
+      final: prev:
       let
         gamescope = prev.gamescope.overrideAttrs {
           src = vanillaGamescope.src;
@@ -47,7 +48,8 @@ in
           enableExecutable = false;
           enableWsi = true;
         };
-      })
+      }
+    )
   ];
 
   # The Deck UI's Bluetooth panel talks to BlueZ (WiFi settings already work
@@ -59,5 +61,20 @@ in
     enable = true;
     audio.enable = true;
     pulse.enable = true;
+  };
+
+  # Intel iGPU VA-API driver (legacy i965, Kaby Lake) for Steam hardware
+  # decoding of remote-play streams — 64-bit and the 32-bit copy Steam's
+  # decoder actually loads.
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
+      intel-vaapi-driver
+    ];
+    extraPackages32 = with pkgsi686Linux; [
+      intel-vaapi-driver
+      libva
+    ];
   };
 }
