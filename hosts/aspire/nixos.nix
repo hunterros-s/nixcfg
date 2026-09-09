@@ -1,6 +1,17 @@
 { pkgs, ... }:
 let
   user = import ../../users/hunter.nix;
+  # Steam Remote Play direct-connection ports (LAN interface scope).
+  steamRemotePlayOpen = {
+    allowedTCPPorts = [ 27036 ];
+    allowedUDPPorts = [ 27036 ];
+    allowedUDPPortRanges = [
+      {
+        from = 27000;
+        to = 27100;
+      }
+    ];
+  };
 in
 {
   imports = [
@@ -24,6 +35,16 @@ in
         22
         2586
       ];
+    };
+
+    # Steam Remote Play direct (LAN) pairing. The default-DROP firewall on the
+    # LAN interfaces silently drops Steam's direct-connection probes (TCP/UDP
+    # 27036 + UDP 27000-27100), forcing every stream through Steam's public
+    # relay (~90ms/frame + frame drops = unusable). Open them on the local
+    # interfaces only, keeping the Tailscale-only exposure posture.
+    firewall.interfaces = {
+      enp1s0f1 = steamRemotePlayOpen;
+      wlp2s0 = steamRemotePlayOpen;
     };
   };
 
