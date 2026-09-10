@@ -114,15 +114,21 @@ in
       HandleLidSwitch = "ignore";
       HandleLidSwitchExternalPower = "ignore";
       HandleLidSwitchDocked = "ignore";
+      # logind AllowSuspend= is the ONLY thing logind enforces when something
+      # asks it to suspend (Steam Deck-UI Sleep button → logind Suspend()).
+      # These were previously set under systemd.sleep.settings (sleep.conf),
+      # which systemd-logind never reads — so AllowSuspend stayed "yes", the
+      # Deck UI kept its Sleep entry, and a suspend left the box unwakeable.
+      AllowSuspend = "no";
+      AllowHibernation = "no";
+      AllowHybridSleep = "no";
+      AllowSuspendThenHibernate = "no";
     };
   };
 
-  # Never suspend: this is a docked HTPC and Steam's Deck-UI Sleep button goes
-  # through logind Suspend(). Disabling all sleep modes at the systemd source
-  # makes every suspend path a no-op, and Steam hides the Sleep power-menu
-  # entry when logind advertises AllowSuspend=no. (Note: `systemctl mask
-  # suspend.target` does NOT reliably prevent suspend — nixpkgs#79437/#354385 —
-  # which is why we set AllowSuspend=no instead.)
+  # Belt-and-braces: also tell systemd-sleep itself not to act. (Masking the
+  # targets does NOT reliably stop logind-suspend — nixpkgs#79437/#354385 —
+  # which is why logind settings above are the primary mechanism.)
   systemd.sleep.settings.Sleep = {
     AllowSuspend = "no";
     AllowHibernation = "no";
