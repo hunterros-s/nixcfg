@@ -31,6 +31,13 @@ in
     desktopSession = "gamescope-wayland";
   };
 
+  # Decky Loader (plugin system for Game Mode). The Decky "Add Non-Steam
+  # Games" plugin is how we add apps like Moonlight from the Deck UI, since
+  # Steam's Game Mode offers no "Add non-Steam game" and this box has no
+  # desktop session. Requires the CEF marker (.cef-enable-remote-debugging)
+  # and a Steam restart after enabling.
+  jovian.decky-loader.enable = true;
+
   nixpkgs.overlays = [
     (
       final: prev:
