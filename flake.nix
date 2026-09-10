@@ -12,6 +12,10 @@
       url = "github:Jovian-Experiments/Jovian-NixOS";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    json2steamshortcut = {
+      url = "github:ChrisOboe/json2steamshortcut";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -99,6 +103,7 @@
                 imports = [
                   ./home/base.nix
                   ./home/dev.nix
+                  ./home/steam-shortcuts.nix
                 ];
 
                 home.username = "hunter";
