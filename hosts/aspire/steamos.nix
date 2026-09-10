@@ -5,13 +5,6 @@ let
       system = "x86_64-linux";
       config.allowUnfree = true;
     }).gamescope;
-  # Steam's remote-play decoder is a 32-bit binary: it loads a 32-bit VA-API
-  # driver from /run/opengl-driver-32, so both arches of the Intel i965 driver
-  # must be present for hardware decoding to work on this laptop's iGPU.
-  pkgsi686Linux = import inputs.nixpkgs {
-    system = "i686-linux";
-    config.allowUnfree = true;
-  };
 in
 {
   imports = [
@@ -30,13 +23,6 @@ in
     # No desktop environment; "Switch to Desktop" just relaunches Gaming Mode.
     desktopSession = "gamescope-wayland";
   };
-
-  # Decky Loader (plugin system for Game Mode). The Decky "Add Non-Steam
-  # Games" plugin is how we add apps like Moonlight from the Deck UI, since
-  # Steam's Game Mode offers no "Add non-Steam game" and this box has no
-  # desktop session. Requires the CEF marker (.cef-enable-remote-debugging)
-  # and a Steam restart after enabling.
-  jovian.decky-loader.enable = true;
 
   nixpkgs.overlays = [
     (
@@ -69,23 +55,4 @@ in
     audio.enable = true;
     pulse.enable = true;
   };
-
-  # Intel iGPU VA-API driver (legacy i965, Kaby Lake) for Steam hardware
-  # decoding of remote-play streams — 64-bit and the 32-bit copy Steam's
-  # decoder actually loads.
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-    extraPackages = with pkgs; [
-      intel-vaapi-driver
-    ];
-    extraPackages32 = with pkgsi686Linux; [
-      intel-vaapi-driver
-      libva
-    ];
-  };
-
-  environment.systemPackages = with pkgs; [
-    moonlight-qt
-  ];
 }
