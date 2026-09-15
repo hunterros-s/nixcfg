@@ -14,20 +14,27 @@ in
 
   programs.home-manager.enable = true;
 
-  home.packages = with pkgs; [
-    ripgrep
-    fd
-    tree
-  ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-    fastfetch
-    btop
-  ];
+  home.packages =
+    with pkgs;
+    [
+      ripgrep
+      fd
+      tree
+    ]
+    ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+      fastfetch
+      btop
+    ];
 
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
     CLICOLOR = "1";
   };
+
+  home.sessionPath = [
+    "$HOME/.local/bin"
+  ];
 
   programs.git = {
     enable = true;

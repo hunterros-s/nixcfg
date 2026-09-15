@@ -58,7 +58,6 @@
 
               home.sessionPath = [
                 "/opt/rocm/bin"
-                "$HOME/.local/bin"
                 "$HOME/.npm-global/bin"
               ];
             }
