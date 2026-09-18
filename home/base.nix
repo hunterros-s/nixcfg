@@ -71,6 +71,10 @@ in
       # Cross-platform desktop noise
       "Desktop.ini"
       "Thumbs.db"
+
+      # AI agent local runtime data / local overrides
+      ".pi/"
+      ".claude/settings.local.json"
     ];
   };
 }
