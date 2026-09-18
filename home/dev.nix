@@ -9,5 +9,7 @@
 
     rustc
     cargo
+    clippy
+    rustfmt
   ];
 }
