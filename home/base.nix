@@ -8,6 +8,7 @@ in
     ./neovim.nix
     ./pi.nix
     ./shell.nix
+    ./sops.nix
   ];
 
   home.stateVersion = "26.05"; # do not change
