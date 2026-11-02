@@ -1,0 +1,17 @@
+{
+  "$schema": "https://pi.dev/schemas/settings.schema.json",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "deepseek-v4.1-flash",
+  "defaultThinkingLevel": "high",
+  "theme": "dark",
+  "packages": [
+    "npm:pi-web-access"
+  ],
+  "subagents": {
+    "agentOverrides": {
+      "researcher": {
+        "model": "openrouter/deepseek/deepseek-v4.1-flash"
+      }
+    }
+  }
+}
