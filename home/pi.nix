@@ -1,67 +1,38 @@
 {
   pkgs,
-  config,
   inputs,
   lib,
   ...
 }:
 let
-  system = pkgs.stdenv.hostPlatform.system;
-
-  settings = builtins.fromJSON (builtins.readFile ./pi/settings.json);
-  settingsFile = (pkgs.formats.json { }).generate "pi-settings.json" settings;
-
-  secretsFile = ../secrets/pi.yaml;
-  sops = config.my.sops.package;
-
-  sopsProviders = {
-    opencode-go = "opencode-go";
-  };
-
-  authSeed = lib.mapAttrs (_: secretKey: {
+  authSeed = lib.genAttrs [ "opencode-go" ] (name: {
     type = "api_key";
-    key = "!${sops}/bin/sops -d --extract '[\"${secretKey}\"]' ${secretsFile}";
-  }) sopsProviders;
+    key = "!sops -d --extract '[\"${name}\"]' ${../secrets/pi.yaml}";
+  });
 
-  authSeedFile = (pkgs.formats.json { }).generate "pi-auth-seed.json" authSeed;
+  # pi writes to these files itself, so merge instead of symlinking.
+  mergeInto = file: filter: src: ''
+    target="$HOME/.pi/agent/${file}"
+    mkdir -p "$(dirname "$target")"
+    [ -f "$target" ] || echo '{}' > "$target"
+    tmp="$(mktemp "$target.XXXXXX")"
+    ${lib.getExe pkgs.jq} -s '${filter}' "$target" ${src} > "$tmp"
+    chmod 600 "$tmp"
+    mv "$tmp" "$target"
+  '';
 in
 {
-  home.packages = [ inputs.pi.packages.${system}.default ];
+  home.packages = [ inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.default ];
 
   home.sessionVariables = {
     PI_SKIP_VERSION_CHECK = "1";
     PI_TELEMETRY = "0";
   };
 
-  home.activation.piSettings = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    set -eu
-    target="$HOME/.pi/agent/settings.json"
-    ${pkgs.coreutils}/bin/mkdir -p "$(dirname "$target")"
-
-    if [ ! -f "$target" ]; then
-      printf '{}\n' > "$target"
-    fi
-
-    tmp="$(${pkgs.coreutils}/bin/mktemp "$target.XXXXXX")"
-    ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$target" ${settingsFile} > "$tmp"
-    ${pkgs.coreutils}/bin/chmod 600 "$tmp"
-    ${pkgs.coreutils}/bin/mv "$tmp" "$target"
-  '';
-
-  home.activation.piAuth = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    set -eu
-    target="$HOME/.pi/agent/auth.json"
-    ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$target")"
-    [ -f "$target" ] || printf '{}\n' > "$target"
-
-    tmp="$(${pkgs.coreutils}/bin/mktemp "$target.XXXXXX")"
-    ${pkgs.jq}/bin/jq --slurpfile add ${lib.escapeShellArg (toString authSeedFile)} '
-      . as $cur
-      | reduce ($add[0] | keys_unsorted[]) as $k
-          ($cur; .[$k] = $add[0][$k])
-    ' "$target" > "$tmp"
-
-    ${pkgs.coreutils}/bin/chmod 600 "$tmp"
-    ${pkgs.coreutils}/bin/mv "$tmp" "$target"
+  home.activation.pi = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    ${mergeInto "settings.json" ".[0] * .[1]" ./pi/settings.json}
+    ${mergeInto "auth.json" ".[0] + .[1]" (
+      (pkgs.formats.json { }).generate "pi-auth-seed.json" authSeed
+    )}
   '';
 }
