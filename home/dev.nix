@@ -18,4 +18,9 @@ in
     clippy
     rustfmt
   ]);
+
+  programs.claude-code = {
+    enable = true;
+    settings = { };
+  };
 }
