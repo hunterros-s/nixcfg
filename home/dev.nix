@@ -21,6 +21,8 @@ in
 
   programs.claude-code = {
     enable = true;
+    # nixos-26.05 lags far behind upstream; track unstable instead.
+    package = unstable.claude-code;
     settings = { };
   };
 }
